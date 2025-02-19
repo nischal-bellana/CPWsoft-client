@@ -1,0 +1,159 @@
+
+atlaspack.png
+size: 4096, 4096
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+bomb
+  rotate: false
+  xy: 2, 396
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+example
+  rotate: false
+  xy: 3512, 3507
+  size: 328, 395
+  orig: 328, 395
+  offset: 0, 0
+  index: -1
+grnd
+  rotate: false
+  xy: 2, 1422
+  size: 3508, 2480
+  orig: 3508, 2480
+  offset: 0, 0
+  index: -1
+playerbase
+  rotate: false
+  xy: 3080, 1320
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+playerleft1
+  rotate: false
+  xy: 3512, 3405
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+playerleft2
+  rotate: false
+  xy: 3842, 3802
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+playerleft3
+  rotate: false
+  xy: 2, 2
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+playerright1
+  rotate: false
+  xy: 327, 294
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+playerright2
+  rotate: false
+  xy: 3080, 1218
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+playerright3
+  rotate: false
+  xy: 3182, 1320
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+powerindicator1
+  rotate: false
+  xy: 1028, 396
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerindicator2
+  rotate: false
+  xy: 2054, 396
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+samplecustombody
+  rotate: false
+  xy: 2, 104
+  size: 323, 290
+  orig: 323, 290
+  offset: 0, 0
+  index: -1
+
+atlaspack2.png
+size: 4096, 4096
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+powerindicator10
+  rotate: false
+  xy: 2054, 1028
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerindicator3
+  rotate: false
+  xy: 2, 2054
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerindicator4
+  rotate: false
+  xy: 2, 1028
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerindicator5
+  rotate: false
+  xy: 1028, 2054
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerindicator6
+  rotate: false
+  xy: 2, 2
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerindicator7
+  rotate: false
+  xy: 1028, 1028
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerindicator8
+  rotate: false
+  xy: 2054, 2054
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1
+powerindicator9
+  rotate: false
+  xy: 1028, 2
+  size: 1024, 1024
+  orig: 1024, 1024
+  offset: 0, 0
+  index: -1

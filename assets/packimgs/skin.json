@@ -1,0 +1,116 @@
+{
+"com.badlogic.gdx.graphics.g2d.BitmapFont": {
+	"swansea": {
+		"file": "swansea.fnt",
+		"scaledSize": -1,
+		"markupEnabled": false,
+		"flip": false
+	},
+	"swanseabold": {
+		"file": "swanseabold.fnt",
+		"scaledSize": -1,
+		"markupEnabled": false,
+		"flip": false
+	}
+},
+"com.badlogic.gdx.graphics.Color": {
+	"gray": {
+		"r": 0.75686276,
+		"g": 0.7764706,
+		"b": 0.78431374,
+		"a": 1
+	},
+	"lightblue": {
+		"r": 0.88235295,
+		"g": 0.94509804,
+		"b": 0.95686275,
+		"a": 1
+	},
+	"lightyellow": {
+		"r": 0.972549,
+		"g": 0.9764706,
+		"b": 0.53333336,
+		"a": 1
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle": {
+	"default": {
+		"up": "roundbutton",
+		"down": "roundbuttondown",
+		"over": "roundbuttonover"
+	},
+	"leftbutton": {
+		"up": "leftbutton",
+		"down": "leftbuttondown",
+		"over": "leftbuttonover"
+	},
+	"rightbutton": {
+		"up": "rightbutton",
+		"down": "rightbuttondown",
+		"over": "rightbuttonover"
+	},
+	"upbutton": {
+		"up": "upbutton",
+		"down": "upbuttondown",
+		"over": "upbuttonover"
+	},
+	"downbutton": {
+		"up": "downbutton",
+		"down": "downbuttondown",
+		"over": "downbuttonover"
+	},
+	"backbutton": {
+		"up": "backbutton",
+		"down": "backbuttondown",
+		"over": "backbuttonover"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+	"default": {
+		"font": "swanseabold",
+		"fontColor": "lightblue"
+	},
+	"head": {
+		"font": "swanseabold",
+		"fontColor": "lightblue",
+		"background": "headback"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle": {
+	"default": {
+		"background": "scrollpaneback"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+	"default": {
+		"font": "swanseabold",
+		"fontColor": "lightblue",
+		"up": "textbutton",
+		"down": "textbuttondown",
+		"over": "textbuttonover"
+	},
+	"checkenable": {
+		"font": "swanseabold",
+		"fontColor": "lightblue",
+		"up": "textbutton",
+		"down": "textbuttondown",
+		"over": "textbuttonover",
+		"checked": "textbuttondown"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+	"default": {
+		"font": "swansea",
+		"fontColor": "lightblue",
+		"focusedFontColor": "lightyellow",
+		"disabledFontColor": "gray",
+		"background": "textfieldback",
+		"cursor": "textcursor"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle": {
+	"default": {
+		"label": "default"
+	}
+}
+}
