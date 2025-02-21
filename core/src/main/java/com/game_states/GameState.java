@@ -1,16 +1,20 @@
 package com.game_states;
 
 
+import com.GameObjects.Bomb;
+import com.GameObjects.BombFactory;
 import com.GameObjects.Ground;
 import com.GameObjects.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2D;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -19,15 +23,25 @@ import com.ray3k.stripe.scenecomposer.SceneComposerStageBuilder;
 public class GameState extends HomeState{
 	
 	private TextureAtlas atlas;
+	private AtlasRegion backregion;
 	
+	String rname;
+			
 	private Array<Player> players;
 	private Player player;
+	
 	private boolean isinput = false;
-	private Ground ground;
 	private StringBuilder inputs;
 	
-	GameState(State prevst, String name){
+	private BombFactory bombfactory;
+	private Array<Bomb> bombs;
+	
+	private Ground ground;
+	
+	GameState(State prevst, String name, String rname){
 		super(prevst, name);
+		
+		this.rname = rname;
 	}
 	
 	@Override
@@ -55,6 +69,7 @@ public class GameState extends HomeState{
 	    stageRender(delta);
 	    
 	    polling();
+	    if(gsm.next_st != null) return;
 	    
 	    if(isinput) {
 	    	inputUpdate();
@@ -67,7 +82,10 @@ public class GameState extends HomeState{
 	protected void dispose() {
 		// TODO Auto-generated method stub
 		super.dispose();
-		atlas.dispose();
+		
+		if(gsm.next_st == null) {
+			atlas.dispose();
+		}
 		ground.disposeShapeRenderer();
 	}
 
@@ -83,10 +101,13 @@ public class GameState extends HomeState{
 		Gdx.input.setInputProcessor(stage);
 		SceneComposerStageBuilder builder = new SceneComposerStageBuilder();
         builder.build(stage, skin, Gdx.files.internal("packimgs//gamestate.json"));
-        stage.getRoot().setVisible(false);
 	}
 	
 	private void createGameObjects(){
+		
+		bombfactory = new BombFactory(atlas);
+		bombs = new Array<Bomb>();
+		
 		createGround();
 		createPlayers();
 	}
@@ -116,7 +137,7 @@ public class GameState extends HomeState{
 	}
 	
 	private void getRegions() {
-		
+		backregion = atlas.findRegion("back");
 	}
 	
 	private void inputUpdate() {
@@ -164,10 +185,8 @@ public class GameState extends HomeState{
 			inputs.append(';');
 			inputs.append(getPowerIndicatorAngle(player));
 			
-			if(!player.isBombAlive()) {
-				inputs.append(';');
-				inputs.append(Gdx.input.isTouched() ? 't' : 'f');
-			}
+			inputs.append(';');
+			inputs.append(Gdx.input.isTouched() ? 't' : 'f');
 			
 		}
 		
@@ -183,12 +202,23 @@ public class GameState extends HomeState{
 	@Override
 	protected void batchRender() {
 		// TODO Auto-generated method stub
+		batch.begin();
+		
+		batch.draw(backregion, 0, 0, 960/32f, 540/32f);
+		
+		batch.end();
+		
 		ground.draw(batch);
 	    
 	    batch.begin();
 	    for(int i = 0; i < players.size; i++) {
 	    	players.get(i).drawSprites(batch);
 	    }
+	    
+	    for(int i = 0; i < bombs.size; i++) {
+	    	bombs.get(i).draw(batch);
+	    }
+	    
 	    batch.end();
 	}
 
@@ -204,83 +234,159 @@ public class GameState extends HomeState{
 	@Override
 	protected void polling() {
 		// TODO Auto-generated method stub
-		String response = sendMsg("gb");
 		
-		if(response.charAt(0) == 'p') {
-			
-			String[] broadcast = response.substring(1).split(";", -1);
-			
-			String[] playersdata = broadcast[0].split("&");
-			
-			for(int i = 0; i < players.size; i++) {
-				Player aplayer = players.get(i);
-				
-				String[] playerdata = playersdata[i].split("#");
-				String[] position = playerdata[0].split(",");
-				
-				aplayer.centerSpriteToHere(Float.parseFloat(position[0]), Float.parseFloat(position[1]));
-				
-				if(playerdata[1].charAt(0) == 't') {
-					String[] powerdata = playerdata[1].substring(1).split(",");
-					
-					aplayer.setPowerLevel(Integer.parseInt(powerdata[0]));
-					aplayer.getPowerSprite().setRotation(Float.parseFloat(powerdata[1]));
-				}
-				else {
-					aplayer.setPowerLevel(-1);
-				}
-				
-				if(playerdata[2].charAt(0) == 't') {
-					String[] bombdata = playerdata[2].substring(1).split(",");
-					
-					Sprite bombsprite = aplayer.getBombSprite();
-					bombsprite.setCenter(Float.parseFloat(bombdata[0]), Float.parseFloat(bombdata[1]));
-					bombsprite.setRotation(Float.parseFloat(bombdata[2]));
-					aplayer.setBombAlive(true);
-				}
-				else {
-					aplayer.setBombAlive(false);
-				}
-				
-				if(aplayer.getPowerLevel() != -1) aplayer.updatePowerIndicator();
-				
-			}
-			
-			if(!broadcast[1].equals("")) {
-				String[] fixtures = broadcast[1].split("c");
-				System.out.println("No of fixtures: " + fixtures.length);
-				for(int i = 0; i < fixtures.length; i++) {
-					String[] coordinates = fixtures[i].split(",");
-					float[] arr = new float[coordinates.length];
-					
-					for(int j = 0; j < arr.length; j++) {
-						arr[j] = Float.parseFloat(coordinates[j]);
-					}
-					ground.addFixture(arr);
-					
-				}
-			}
-			
-			if(!broadcast[2].equals("")) {
-				String[] fixtureIndices = broadcast[2].split("d");
-				
-				for(int i = 0; i < fixtureIndices.length; i++) {
-					ground.removeFixture(Integer.parseInt(fixtureIndices[i]));
-				}
-				
-			}
-			
+		String response = sendMsg("gg");
+		
+		if(response.charAt(0) == 'f') {
+			gsm.next_st = new RoomState(this, name, rname);
+			return;
 		}
 		
+		getBroadcast();
+		
 		if(isinput && inputs.length() > 2) {
-			
 			response = sendMsg(inputs.toString());
-			
 		}
 		
 		response = sendMsg("gt");
 		isinput = response.charAt(0) == 'p';
 		
+	}
+	
+	private void getBroadcast() {
+		String response = sendMsg("gb");
+		
+		if(response.charAt(0) != 'p') return;
+		
+		String[] broadcast = response.substring(1).split(";", -1);
+		
+		updatePlayers(broadcast);
+		
+		updateBombs(broadcast);
+		
+		updateGroundFixtures(broadcast);
+		
+		updateTime(broadcast);
+		
+		updateCurrentPlayer(broadcast);
+		
+	}
+	
+	private void updatePlayers(String[] broadcast) {
+		
+		if(!broadcast[0].equals("")) {
+			
+			String[] removedindicessplitted = broadcast[0].split(",");
+			
+			for(String removedindexstr : removedindicessplitted) {
+				
+				int removedindex = Integer.parseInt(removedindexstr);
+				
+				players.removeIndex(removedindex);
+				
+			}
+			
+		}
+		
+		String[] playersdata = broadcast[1].split("&");
+		
+		for(int i = 0; i < players.size; i++) {
+			Player aplayer = players.get(i);
+			
+			String[] playerdata = playersdata[i].split("#");
+			String[] position = playerdata[0].split(",");
+			
+			aplayer.centerSpriteToHere(Float.parseFloat(position[0]), Float.parseFloat(position[1]));
+			
+			if(playerdata[1].charAt(0) == 't') {
+				String[] powerdata = playerdata[1].substring(1).split(",");
+				
+				aplayer.setPowerLevel(Integer.parseInt(powerdata[0]));
+				aplayer.getPowerSprite().setRotation(Float.parseFloat(powerdata[1]));
+			}
+			else {
+				aplayer.setPowerLevel(-1);
+			}
+			
+			if(aplayer.getPowerLevel() != -1) aplayer.updatePowerIndicator();
+			
+		}
+	}
+	
+	private void updateBombs(String[] broadcast) {
+		String[] bombsdata = broadcast[2].split("&", -1);
+		
+		int addcount = Integer.parseInt(bombsdata[0]);
+		
+		for(int i = 0; i < addcount; i++) {
+			bombs.add(bombfactory.generateBomb());
+		}
+		
+		if(!bombsdata[1].equals("")) {
+			String[] bombsremovedstr = bombsdata[1].split(",");
+			
+			for(String bombremovedstr : bombsremovedstr) {
+				int index = Integer.parseInt(bombremovedstr);
+				bombs.removeIndex(index);
+			}
+		}
+		
+		if(bombs.size != 0) {
+			String[] bombsdatastr = bombsdata[2].split("#");
+			for(int i = 0; i < bombs.size; i++) {
+				Bomb bomb = bombs.get(i);
+				String[] bombdatastr = bombsdatastr[i].split(",");
+				
+				float x = Float.parseFloat(bombdatastr[0]);
+				float y = Float.parseFloat(bombdatastr[1]);
+				float angle = Float.parseFloat(bombdatastr[2]);
+				
+				bomb.setCenter(x, y);
+				bomb.setRotation(angle);
+				
+			}
+		}
+	}
+	
+	private void updateGroundFixtures(String[] broadcast) {
+		if(!broadcast[3].equals("")) {
+			String[] fixtures = broadcast[3].split("c");
+			System.out.println("No of fixtures: " + fixtures.length);
+			for(int i = 0; i < fixtures.length; i++) {
+				String[] coordinates = fixtures[i].split(",");
+				float[] arr = new float[coordinates.length];
+				
+				for(int j = 0; j < arr.length; j++) {
+					arr[j] = Float.parseFloat(coordinates[j]);
+				}
+				ground.addFixture(arr);
+				
+			}
+		}
+		
+		if(!broadcast[4].equals("")) {
+			String[] fixtureIndices = broadcast[4].split("d");
+			
+			for(int i = 0; i < fixtureIndices.length; i++) {
+				ground.removeFixture(Integer.parseInt(fixtureIndices[i]));
+			}
+			
+		}
+	}
+	
+	private void updateTime(String[] broadcast) {
+		String[] timers =  broadcast[5].split(",");
+		
+		Label matchtimer = (Label)stage.getRoot().findActor("matchtimer");
+		matchtimer.setText(timers[0]);
+		
+		Label turntimer = (Label)stage.getRoot().findActor("turntimer");
+		turntimer.setText(timers[1]);
+	}
+	
+	private void updateCurrentPlayer(String[] broadcast) {
+		Label currentplayer = (Label)stage.getRoot().findActor("currentplayer");
+		currentplayer.setText(broadcast[6]);
 	}
 	
 	private float getPowerIndicatorAngle(Player player) {

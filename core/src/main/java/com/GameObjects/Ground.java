@@ -30,7 +30,7 @@ public class Ground{
 		fixtures = new Array<>();
 		AtlasRegion region = atlas.findRegion("grnd");
 		sprite = new Sprite(region);
-		sprite.setBounds(1, 3, region.getRegionWidth()/(32f*4f), region.getRegionHeight()/(32f*4f));
+		sprite.setBounds(-2, 3, region.getRegionWidth()/(32f*3f), region.getRegionHeight()/(32f*3f));
 		shapeRenderer = new ShapeRenderer();
 	}
 	
@@ -79,19 +79,7 @@ public class Ground{
 	    Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
 	    updatebuffermask = false;
 	}
-	
-	private float[] pstovert(PolygonShape shp) {
-		int len = shp.getVertexCount();
-		float[] vert = new float[2*len];
-		Vector2 vec = new Vector2();
-		for(int i=0;i<len;i++) {
-			shp.getVertex(i, vec);
-			vert[2*i] = vec.x;
-			vert[2*i+1] = vec.y;
-		}
-		return vert;
-	}
-	
+
 	public void addFixture(float[] arr) {
 		fixtures.add(arr);
 		updatebuffermask = true;

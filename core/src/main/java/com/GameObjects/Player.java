@@ -16,9 +16,6 @@ public class Player {
 	private Sprite powersprite;
 	private int powerindicatorLevel = -1;
 	
-	private Sprite bombsprite;
-	private boolean bombalive = false;
-	
 	public Player(Viewport viewport, TextureAtlas atlas) {
 		this.viewport = viewport;
 		
@@ -39,15 +36,11 @@ public class Player {
 		}
 		
 		sprite = new Sprite(regions[0]);
-		sprite.setBounds(0, 0, 0.8f, 0.8f);
+		sprite.setBounds(0, 0, 0.4f, 0.4f);
 		
 		powersprite = new Sprite(powerindicators[0]);
-		powersprite.setBounds(0, 0, 2, 2);
-		powersprite.setOrigin(-0.5f, powersprite.getHeight()/2);
-		
-		bombsprite = new Sprite(atlas.findRegion("bomb"));
-		bombsprite.setBounds(0, 0, 0.8f, 0.8f);
-		bombsprite.setOrigin(0.4f , 0.4f);
+		powersprite.setBounds(0, 0, 1, 1);
+		powersprite.setOrigin(-0.25f, powersprite.getHeight()/2);
 		
 	}
 	
@@ -56,17 +49,10 @@ public class Player {
 		if(powerindicatorLevel != -1) {
 			powersprite.draw(batch);
 		}
-		if(bombalive) {
-			bombsprite.draw(batch);
-		}
 	}
 	
 	public Sprite getSprite() {
 		return sprite;
-	}
-	
-	public Sprite getBombSprite() {
-		return bombsprite;
 	}
 	
 	public Sprite getPowerSprite() {
@@ -94,14 +80,6 @@ public class Player {
 	
 	public int getPowerLevel() {
 		return powerindicatorLevel;
-	}
-	
-	public void setBombAlive(boolean value) {
-		bombalive = value;
-	}
-	
-	public boolean isBombAlive() {
-		return bombalive;
 	}
 	
 }

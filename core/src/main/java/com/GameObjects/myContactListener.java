@@ -12,20 +12,23 @@ import com.utils.Decomp;
 import com.utils.PointNode;
 
 public class myContactListener implements ContactListener {
-
+	
 	@Override
 	public void beginContact(Contact contact) {
 		// TODO Auto-generated method stub
 		Fixture fixtureA = contact.getFixtureA();
 		Fixture fixtureB = contact.getFixtureB();
 		
-		resolveFixtures(fixtureA, fixtureB);
+		resolveFixturesBegin(fixtureA, fixtureB);
 	}
 
 	@Override
 	public void endContact(Contact contact) {
 		// TODO Auto-generated method stub
-
+		Fixture fixtureA = contact.getFixtureA();
+		Fixture fixtureB = contact.getFixtureB();
+		
+		resolveFixturesEnd(fixtureA, fixtureB);
 	}
 
 	@Override
@@ -40,19 +43,28 @@ public class myContactListener implements ContactListener {
 
 	}
 	
-	private void resolveFixtures(Fixture fixtureA, Fixture fixtureB) {
-		tryBomb(fixtureA, fixtureB);
+	private void resolveFixturesBegin(Fixture fixtureA, Fixture fixtureB) {
 		
+		tryBomb(fixtureA, fixtureB);
+			
 		tryClip(fixtureA, fixtureB);
 		
-		if(tryPlayerAndGroundWorld(fixtureA, fixtureB)) return;
+		if(tryPlayerAndGroundWorld(fixtureA, fixtureB, true)) return;
 		
 		if(tryClipAndGroundWorld(fixtureA, fixtureB)) return;
 	}
 	
-	private boolean tryPlayerAndGroundWorld(Fixture fixtureA, Fixture fixtureB) {
+	private void resolveFixturesEnd(Fixture fixtureA, Fixture fixtureB) {
+		if(tryPlayerAndGroundWorld(fixtureA, fixtureB, false)) return;
+	}
+	
+	private boolean tryPlayerAndGroundWorld(Fixture fixtureA, Fixture fixtureB, boolean begin) {
 		if(!isPlayer(fixtureA) && !isPlayer(fixtureB)) return false;
 		if(!isGroundWorld(fixtureA) && !isGroundWorld(fixtureB)) return false;
+		
+		if(isPlayer(fixtureA)) resolvePlayerAndGround(fixtureA, fixtureB, begin);
+		else resolvePlayerAndGround(fixtureB, fixtureA, begin);
+		
 		
 		return true;
 	}
@@ -70,8 +82,8 @@ public class myContactListener implements ContactListener {
 	private boolean tryBomb(Fixture fixtureA, Fixture fixtureB) {
 		if(!isBomb(fixtureA) && !isBomb(fixtureB)) return false;
 		
-		if(isBomb(fixtureA)) resolveBomb((Bomb) fixtureA.getUserData());
-		else resolveBomb((Bomb) fixtureB.getUserData());
+		if(isBomb(fixtureA)) resolveBomb(fixtureA);
+		else resolveBomb(fixtureB);
 		
 		return true;
 	}
@@ -107,7 +119,6 @@ public class myContactListener implements ContactListener {
 		
 		Array<PointNode> finalFixtures = new Array<>();
 		PointNode curPoly = res;
-		System.out.println("decomposing ...");
 		while(curPoly != null) {
 			PointNode nextPoly = curPoly.nextPoly;
 			curPoly.nextPoly = null;
@@ -118,18 +129,25 @@ public class myContactListener implements ContactListener {
 		
 		groundworld.queueCreate(finalFixtures);
 		
-		System.out.println("Complete");
+	}
+	
+	private void resolvePlayerAndGround(Fixture playerfixture, Fixture groundfixture, boolean begin) {
+		PlayerWorld playerworld = (PlayerWorld)playerfixture.getUserData();
+		
+		if(playerfixture.isSensor()) {
+			playerworld.updateContacts(begin);
+		}
 		
 	}
 	
-	private void resolveBomb(Bomb bomb) {
-		PlayerWorld playerworld = bomb.getPlayerWorld();
-		playerworld.requestDestroyBomb();
+	private void resolveBomb(Fixture bombfixture) {
+		BombWorld bomb = (BombWorld)bombfixture.getUserData();
+		
+		bomb.requestDestroyBomb(bombfixture.getBody().getLinearVelocity().len());
 	}
 	
 	private void resolveClip(Clip clip) {
-		PlayerWorld playerworld = clip.getPlayerWorld();
-		playerworld.requestDestroyClip();
+		clip.requestDestroyClip();
 	}
 	
 	private boolean isClip(Fixture fixture) {
@@ -145,7 +163,7 @@ public class myContactListener implements ContactListener {
 	}
 	
 	private boolean isBomb(Fixture fixture) {
-		return (fixture.getUserData() instanceof Bomb);
+		return (fixture.getUserData() instanceof BombWorld);
 	}
 	
 }

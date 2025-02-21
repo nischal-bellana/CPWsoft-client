@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class RoomState extends HomeState{
 	
 	Label roomname;
+	String rname;
 	Table chatarea;
 	Table userslist;
 	Label allreadytime;
@@ -26,6 +27,7 @@ public class RoomState extends HomeState{
 	
 	public RoomState(State prevst, String name, String rname) {
 		super(prevst, name);
+		this.rname = rname;
 		roomname.setText("Room Name: " + rname);
 		// TODO Auto-generated constructor stub
 	}
@@ -34,6 +36,7 @@ public class RoomState extends HomeState{
 	protected void create() {
 		// TODO Auto-generated method stub
 		super.create();
+		sendMsg("ri");
 	}
 
 	@Override
@@ -247,7 +250,7 @@ public class RoomState extends HomeState{
 					int value = (int)Float.parseFloat(time);
 					allreadytime.setText(value<0?0:value);
 					if(value <= 0 && sendMsg("rs").charAt(0) == 'p') {
-						gsm.next_st = new GameState(this, name);
+						gsm.next_st = new GameState(this, name, rname);
 					}
 				}
 				else {

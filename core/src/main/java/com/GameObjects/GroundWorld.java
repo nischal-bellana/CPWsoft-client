@@ -66,10 +66,8 @@ public class GroundWorld {
 				}
 				time += 0.01;
 			}
-			System.out.println();
-			System.out.println("created!");
 			
-			FixtureDef fdef = WorldUtils.createFixDef(1, 0.5f, 0.5f);
+			FixtureDef fdef = WorldUtils.createFixDef(1, 1f, 0.3f);
 			PolygonShape shape = new PolygonShape();
 			float[] arr = toArray(poly);
 			shape.set(arr);
@@ -103,8 +101,6 @@ public class GroundWorld {
 				}
 				time += 0.01;
 			}
-			System.out.println();
-			System.out.println("destroyed!");
 			
 			getBody().destroyFixture(f);
 		}

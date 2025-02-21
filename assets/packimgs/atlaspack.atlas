@@ -4,93 +4,100 @@ size: 4096, 4096
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+back
+  rotate: false
+  xy: 2, 104
+  size: 736, 467
+  orig: 736, 467
+  offset: 0, 0
+  index: -1
 bomb
   rotate: false
-  xy: 2, 396
+  xy: 2, 573
   size: 1024, 1024
   orig: 1024, 1024
   offset: 0, 0
   index: -1
 example
   rotate: false
-  xy: 3512, 3507
+  xy: 3512, 3684
   size: 328, 395
   orig: 328, 395
   offset: 0, 0
   index: -1
 grnd
   rotate: false
-  xy: 2, 1422
+  xy: 2, 1599
   size: 3508, 2480
   orig: 3508, 2480
   offset: 0, 0
   index: -1
 playerbase
   rotate: false
-  xy: 3080, 1320
+  xy: 2, 2
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 playerleft1
   rotate: false
-  xy: 3512, 3405
+  xy: 740, 471
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 playerleft2
   rotate: false
-  xy: 3842, 3802
+  xy: 3512, 3582
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 playerleft3
   rotate: false
-  xy: 2, 2
+  xy: 3842, 3979
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 playerright1
   rotate: false
-  xy: 327, 294
+  xy: 3080, 1205
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 playerright2
   rotate: false
-  xy: 3080, 1218
+  xy: 3405, 1497
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 playerright3
   rotate: false
-  xy: 3182, 1320
+  xy: 104, 2
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 powerindicator1
   rotate: false
-  xy: 1028, 396
+  xy: 1028, 573
   size: 1024, 1024
   orig: 1024, 1024
   offset: 0, 0
   index: -1
 powerindicator2
   rotate: false
-  xy: 2054, 396
+  xy: 2054, 573
   size: 1024, 1024
   orig: 1024, 1024
   offset: 0, 0
   index: -1
 samplecustombody
   rotate: false
-  xy: 2, 104
+  xy: 3080, 1307
   size: 323, 290
   orig: 323, 290
   offset: 0, 0

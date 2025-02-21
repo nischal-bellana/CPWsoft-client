@@ -11,7 +11,7 @@
 						"clazz": "com.badlogic.gdx.scenes.scene2d.ui.Label",
 						"name": "default"
 					},
-					"text": "GameTimer: ",
+					"text": "Match time: ",
 					"textAlignment": 8,
 					"ellipsis": false,
 					"ellipsisString": "...",
@@ -36,7 +36,7 @@
 				"fillY": false,
 				"growX": false,
 				"growY": false,
-				"alignment": 1,
+				"alignment": 10,
 				"minWidth": -1,
 				"minHeight": -1,
 				"maxWidth": -1,
@@ -50,7 +50,7 @@
 			{
 				"child": {
 					"class": "Label",
-					"name": null,
+					"name": "matchtimer",
 					"style": {
 						"clazz": "com.badlogic.gdx.scenes.scene2d.ui.Label",
 						"name": "default"
@@ -138,7 +138,7 @@
 			{
 				"child": {
 					"class": "Label",
-					"name": null,
+					"name": "turntimer",
 					"style": {
 						"clazz": "com.badlogic.gdx.scenes.scene2d.ui.Label",
 						"name": "default"
@@ -226,7 +226,7 @@
 			{
 				"child": {
 					"class": "Label",
-					"name": null,
+					"name": "currentplayer",
 					"style": {
 						"clazz": "com.badlogic.gdx.scenes.scene2d.ui.Label",
 						"name": "default"
@@ -268,8 +268,8 @@
 				"colSpan": 1
 			}
 		],
-		"name": "table1",
-		"background": "back",
+		"name": null,
+		"background": null,
 		"color": null,
 		"padLeft": 30,
 		"padRight": 0,
