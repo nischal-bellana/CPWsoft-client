@@ -79,7 +79,7 @@ public class BombWorld {
 		vec.scl(vel - 1);
 		
 		System.out.println("Bomb is destroyed in " + (this.time+time) + "secs");
-		clipsqueue.addLast(new Clip(body.getWorld(), body.getPosition().x + vec.x, body.getPosition().y + vec.y));
+		clipsqueue.addLast(new Clip(playerworld, body.getWorld(), body.getPosition().x + vec.x, body.getPosition().y + vec.y));
 		body.getWorld().destroyBody(body);
 		body = null;
 		time = 0;

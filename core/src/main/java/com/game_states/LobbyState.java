@@ -1,5 +1,6 @@
 package com.game_states;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -15,38 +16,25 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 
-public class LobbyState extends HomeState{
-	
-	Table scrtable;
-	ButtonGroup<TextButton> bgrp;
+public class LobbyState extends State{
+	private String name;
+	private Label online;
+	private Table scrtable;
+	private ButtonGroup<TextButton> bgrp;
 
 	public LobbyState(State prevst, String name) {
-		super(prevst, name);
+		super(prevst);
+		
+		this.name = name;
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	protected void create() {
+	public void create() {
 		// TODO Auto-generated method stub
-		super.create();
-	}
-
-	@Override
-	protected void render() {
-		// TODO Auto-generated method stub
-		super.render();
-	}
-
-	@Override
-	protected void dispose() {
-		// TODO Auto-generated method stub
-		super.dispose();
-	}
-
-	@Override
-	protected void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		super.resize(width, height);
+		createStage();
+		
+		message = new StringBuilder();
 	}
 
 	@Override
@@ -66,7 +54,7 @@ public class LobbyState extends HomeState{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				gsm.next_st = new HomeState(LobbyState.this, name);
+				changeState(new HomeState(LobbyState.this, name));
 			}
 		});
 		topbar.add(back);
@@ -106,10 +94,7 @@ public class LobbyState extends HomeState{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				String response = sendMsg("lrs");
-				if(response.charAt(0) == 'p') {
-					refreshRooms(response.substring(1), rname.getText());
-				}
+				appendRequest("lf" + rname.getText());
 			}
 			
 		});
@@ -120,18 +105,14 @@ public class LobbyState extends HomeState{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				if(bgrp.getChecked() != null) {
-					String roomdata = bgrp.getChecked().getName();
-					String[] dataarray = roomdata.split("&");
-					int no = Integer.parseInt(dataarray[1]);
-					if(no>=5) return;
+				if(bgrp.getChecked() == null) return;
+				
+				String roomdata = bgrp.getChecked().getName();
+				String[] dataarray = roomdata.split("&");
+				int no = Integer.parseInt(dataarray[1]);
+				if(no>=5) return;
 					
-					String res = sendMsg("lj" + dataarray[0]);
-					System.out.println("joining room ...");
-					System.out.println(res);
-					if(res.equals("p"))
-						gsm.next_st = new RoomState(LobbyState.this, name, dataarray[0]);
-				}
+				appendRequest("lj" + dataarray[0]);
 			}
 			
 		});
@@ -142,11 +123,7 @@ public class LobbyState extends HomeState{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				String res = sendMsg("lc");
-				System.out.println("creating room ...");
-				System.out.println(res);
-				if(res.charAt(0) == 'p')
-					gsm.next_st = new RoomState(LobbyState.this, name, res.substring(1));
+				appendRequest("lc");
 			}
 			
 		});
@@ -168,27 +145,8 @@ public class LobbyState extends HomeState{
 		
 		table.add(bottombar);
 	}
-
-	@Override
-	protected void stageRender(float delta) {
-		// TODO Auto-generated method stub
-		super.stageRender(delta);
-	}
-
-	@Override
-	protected void batchRender() {
-		// TODO Auto-generated method stub
-		super.batchRender();
-	}
-
-	@Override
-	protected void preRender(float delta) {
-		// TODO Auto-generated method stub
-		super.preRender(delta);
-		
-	}
 	
-	protected void refreshRooms(String data, String roomID) {
+	protected void refreshRooms(String data) {
 		scrtable.clearChildren();
 		scrtable.add();
 		Label roomshead = new Label("Room Name", skin, "head");
@@ -205,7 +163,6 @@ public class LobbyState extends HomeState{
 		
 		for(String roomdata: roomnames) {
 			String[] room = roomdata.split("&");
-			if(!roomID.equals("") && !room[0].equals(roomID)) continue;
 			TextButton button = new TextButton("", skin, "checkenable");
 			button.setName(roomdata);
 			bgrp.add(button);
@@ -218,18 +175,39 @@ public class LobbyState extends HomeState{
 		}
 		
 	}
+	
+	@Override
+	protected void handleResponse(String response) {
+		// TODO Auto-generated method stub
+		String request = response.substring(0, 2);
+		
+		if(request.equals("co") && response.charAt(2) == 'p') {
+			online.setText(response.substring(3));
+		}
+		else if(request.equals("lr") && response.charAt(2) == 'p') {
+			refreshRooms(response.substring(3));
+		}
+		else if(request.equals("lf") && response.charAt(2) == 'p') {
+			refreshRooms(request.substring(3));
+		}
+		else if(request.equals("lj") && response.charAt(2) == 'p') {
+			String roomname = response.substring(3);
+			changeState(new RoomState(this, name, roomname));
+		}
+		else if(request.equals("lc") && response.charAt(2) == 'p') {
+			String roomname = response.substring(3);
+			changeState(new RoomState(this, name, roomname));
+		}
+	}
 
 	@Override
 	protected void polling() {
 		// TODO Auto-generated method stub
-		super.polling();
-		String received = sendMsg("lrp");
-		if(received.charAt(0) == 'p') {
-			refreshRooms(received.length() > 1? received.substring(1) : "", "");
-			System.out.println("refreshed");
-		}
+		appendRequest("co");
+
+		appendRequest("lr");
 	}
-	
+
 	
 	
 }

@@ -6,6 +6,7 @@ public class GameStateManager {
 	public GameStateManager() {
 		st = new FirstState();
 		st.gsm = this;
+		st.create();
 	}
 	public GameStateManager(State st) {
 		this.st = st;
@@ -20,6 +21,7 @@ public class GameStateManager {
 			st.dispose();
 			st = next_st;
 			next_st = null;
+			st.create();
 		}
 	}
 	public void dispose() {

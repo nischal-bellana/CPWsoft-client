@@ -22,7 +22,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 
 public class XMLHelper {
-	public static final String workdir = "C:\\Users\\nisch\\eclipse-workspace\\CPWsoft-client\\assets\\";
+	public static final String workdir = "C:\\Users\\nisch\\eclipse-workspace\\CPWsoft-server\\assets\\";
 	
 	public static void xmlWrite(Array<PointNode> polys, String path) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -57,7 +57,7 @@ public class XMLHelper {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		
-		FileHandle fileHandle = Gdx.files.absolute(workdir+path);
+		FileHandle fileHandle = Gdx.files.internal(path);
 		File fxml = fileHandle.file();
 		
 		Document doc = builder.parse(fxml);

@@ -34,6 +34,7 @@ public class BombWorldFactory {
 		
 		Body body = context.getWorld().createBody(bdef);
 		body.setUserData(bombworld);
+		bombworld.setBody(body);
 		
 		FixtureDef fdef = WorldUtils.createFixDef(1f, 0.7f, 0.2f);
 		PolygonShape shape = new PolygonShape();

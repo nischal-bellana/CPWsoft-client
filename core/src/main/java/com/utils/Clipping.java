@@ -10,11 +10,7 @@ public class Clipping {
 	private static PointNode clipnodebase;
 	
 	public static PointNode clip(PointNode subject, PointNode clip) {
-		System.out.println(Arrays.toString(toArray(subject)));
-		System.out.println(Arrays.toString(toArray(clip)));
-		System.out.println("In phase1");
 		int intersectspresent = phase1(subject, clip);
-		System.out.println("Interesects present = " + intersectspresent);
 		if(intersectspresent % 2 == 1) {
 			return subject;
 		}
@@ -26,11 +22,8 @@ public class Clipping {
 				return subject;
 			}
 		}
-		System.out.println("In phase 2");
 		phase2(subject, clip);
-		System.out.println("In phase 3");
 		PointNode res = phase3(subject, clip);
-		System.out.println("Complete");
 		return res;
 	}
 	
@@ -257,8 +250,8 @@ public class Clipping {
 	}
 	
 	private static void setClipBase() {
-		int vertex_count = 10;
-		int radius = 2;
+		int vertex_count = 8;
+		int radius = 1;
 		double dth = (2*Math.PI)/vertex_count;
 		
 		clipnodebase = new PointNode(radius, 0);

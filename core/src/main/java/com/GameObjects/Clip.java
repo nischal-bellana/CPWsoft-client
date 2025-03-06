@@ -20,9 +20,12 @@ public class Clip {
 	private float time = 0;
 	
 	private World world;
+	private Player player;
 	private HashSet<Fixture> processed;
+	private HashSet<Body> processedBody;
 	
-	public Clip(World world, float x, float y) {
+	public Clip(PlayerWorld playerworld, World world, float x, float y) {
+		this.player = playerworld.getPlayer();
 		this.world = world;
 		position = new Vector2(x, y);
 	}
@@ -33,6 +36,10 @@ public class Clip {
 	
 	public Vector2 getPosition() {
 		return position;
+	}
+	
+	public Player getPlayer() {
+		return player;
 	}
 	
 	private void create() {
@@ -55,6 +62,7 @@ public class Clip {
 		shape.dispose();
 		
 		processed = new HashSet<>();
+		processedBody = new HashSet<>();
 	}
 	
 	public boolean processedFixture(Fixture f) {
@@ -65,17 +73,27 @@ public class Clip {
 		processed.add(f);
 	}
 	
-	public void updateClip(float delta) {
+	public boolean processedBody(Body body) {
+		return processedBody.contains(body);
+	}
+	
+	public void addToProcessedBody(Body body) {
+		processedBody.add(body);
+	}
+	
+	public boolean updateClip(float delta) {
 		if(body == null) {
 			create();
-			return;
+			return false;
 		}
 		
 		if(time > 1 || requestedDestroyClip) {
 			destroyClip();
+			return true;
 		}
 		
 		time += delta;
+		return false;
 	}
 	
 	public void destroyClip() {

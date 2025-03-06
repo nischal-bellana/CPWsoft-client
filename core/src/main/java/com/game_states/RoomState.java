@@ -13,48 +13,35 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-public class RoomState extends HomeState{
+public class RoomState extends State{
 	
 	Label roomname;
+	Label online;
+	String name;
 	String rname;
 	Table chatarea;
 	Table userslist;
 	Label allreadytime;
 	int chatIndex = 0;
 	String chatrequest = "rh0";
-	boolean myMessage = false;
 	boolean isready = false;
 	
 	public RoomState(State prevst, String name, String rname) {
-		super(prevst, name);
+		super(prevst);
+		this.name = name;
 		this.rname = rname;
-		roomname.setText("Room Name: " + rname);
+		
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	protected void create() {
+	public void create() {
 		// TODO Auto-generated method stub
-		super.create();
-		sendMsg("ri");
-	}
-
-	@Override
-	protected void render() {
-		// TODO Auto-generated method stub
-		super.render();
-	}
-
-	@Override
-	protected void dispose() {
-		// TODO Auto-generated method stub
-		super.dispose();
-	}
-
-	@Override
-	protected void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		super.resize(width, height);
+		createStage();
+		
+		message = new StringBuilder();
+		
+		appendRequest("ri");
 	}
 
 	@Override
@@ -77,9 +64,7 @@ public class RoomState extends HomeState{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				if(!sendMsg("rb").equals("f")) {
-					gsm.next_st = new LobbyState(RoomState.this, name);
-				}
+				appendRequest("rb");
 			}
 			
 		});
@@ -92,7 +77,7 @@ public class RoomState extends HomeState{
 		oc.setColor(0, 1, 0, 1);
 		topbar.add(oc);
 		
-		roomname = new Label("", skin);
+		roomname = new Label("Room Name: " + rname, skin);
 		topbar.add(roomname).padLeft(10);
 		
 		chatarea = new Table();
@@ -120,9 +105,9 @@ public class RoomState extends HomeState{
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
 				String content = chatfield.getText();
-				if(content == null || content.equals("")) return;
+				if(content.equals("") || content.contains("{") || content.contains("}")) return;
 				
-				sendMsg("rm" + content);
+				appendRequest("rm" + content);
 			}
 			
 		});
@@ -137,40 +122,17 @@ public class RoomState extends HomeState{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				String response = sendMsg("rr");
-				if(response.charAt(0) == 'p') {
-					synchronized(RoomState.this) {
-						isready = !isready;
-						readybutton.setText(isready? "X Cancel" : "Ready");
-					}
-				}
+				appendRequest("rr");
 			}
 			
 		});
+		readybutton.setName("readybutton");
 		table.add(readybutton).height(50).width(100).right();
 		
 		allreadytime = new Label("30", skin);
 		allreadytime.setVisible(false);
 		table.row();
 		table.add(allreadytime).right().colspan(3).height(50).width(50);
-	}
-
-	@Override
-	protected void stageRender(float delta) {
-		// TODO Auto-generated method stub
-		super.stageRender(delta);
-	}
-
-	@Override
-	protected void batchRender() {
-		// TODO Auto-generated method stub
-		super.batchRender(); 
-	}
-
-	@Override
-	protected void preRender(float delta) {
-		// TODO Auto-generated method stub
-		super.preRender(delta);
 	}
 	
 	protected void refreshUsersList(String data) {
@@ -193,80 +155,143 @@ public class RoomState extends HomeState{
 		}
 	}
 	
-	protected void refreshChat() {
-		String response = sendMsg(chatrequest);
+	private void refreshChat(String newchat) {
+		int i = 0;
 		
-		while(response.charAt(0) == 'p') {
-			String content = response.substring(1);
-			if(chatIndex % 2 == 0) {
-				myMessage = content.equals(name);
-				if(!myMessage) {
-					Label clientname = new Label(content, skin);
-					clientname.setColor(Color.BLUE);
-					chatarea.row();
-					chatarea.add(clientname).expandX().left();
-				}
+		System.out.println("newchat: " + newchat);
+		
+		while(i < newchat.length()) {
+			int beginindex = getBeginIndex(newchat, i, '&');
+			int endindex = beginindex + getEndIndex(newchat, i, '&');
+			String clientname = newchat.substring(beginindex, endindex);
+			i = endindex;
+			
+			System.out.println("1." + beginindex + " " + endindex);
+			
+			boolean myMessage = clientname.equals(name);
+			
+			if(!myMessage) {
+				Label clientlabel = new Label(clientname, skin);
+				clientlabel.setColor(Color.BLUE);
+				chatarea.row();
+				chatarea.add(clientlabel).expandX().left();
+			}
+			
+			beginindex = getBeginIndex(newchat, i, '&');
+			endindex = beginindex + getEndIndex(newchat, i, '&');
+			String message = newchat.substring(beginindex, endindex);
+			i = endindex;
+			
+			System.out.println("2." + beginindex + " " + endindex);
+			
+			Label messagelabel = new Label(message, skin);
+			chatarea.row();
+			Cell<Label> cell = chatarea.add(messagelabel).expandX();
+			if(myMessage) {
+				messagelabel.setColor(Color.GOLD);
+				cell.right();
 			}
 			else {
-				Label message = new Label(content, skin);
-				chatarea.row();
-				Cell<Label> cell = chatarea.add(message).expandX();
-				if(myMessage) {
-					message.setColor(Color.GOLD);
-					cell.right();
-				}
-				else {
-					cell.left();
-				}
+				cell.left();
 			}
+			
 			chatIndex++;
-			chatrequest = "rh" + chatIndex;
-			response = sendMsg(chatrequest);
 		}
+		
+		chatrequest = "rh" + chatIndex;
 		
 	}
 
 	@Override
 	protected void polling() {
 		// TODO Auto-generated method stub
-		String response = sendMsg("rn");
-		if(response.charAt(0) == 'p' && response.length() > 1) {
-			online.setText(response.substring(1));
-		}
+		appendRequest("rn");
 		
-		refreshChat();
+		appendRequest(chatrequest);
 		
-		response = sendMsg("ru");
-		if(response.charAt(0) == 'p') {
-			refreshUsersList(response.length() > 1? response.substring(1) : "");
-		}
+		appendRequest("ru");
 		
 		synchronized(this) {
 			if(isready) {
-				response = sendMsg("ra");
-				if(response.charAt(0) == 'p') {
-					allreadytime.setVisible(true);
-					String time = response.substring(1);
-					int value = (int)Float.parseFloat(time);
-					allreadytime.setText(value<0?0:value);
-					if(value <= 0 && sendMsg("rs").charAt(0) == 'p') {
-						gsm.next_st = new GameState(this, name, rname);
-					}
-				}
-				else {
-					allreadytime.setVisible(false);
-					if(response.charAt(1) == '1') {
-						isready = false;
-					}
-				}
-			}
-			else {
-				allreadytime.setVisible(false);
+				appendRequest("ra");
 			}
 		}
 		
 	}
+
+	@Override
+	protected void handleResponse(String response) {
+		// TODO Auto-generated method stub
+		String request = response.substring(0, 2);
+		
+		if(request.equals("rn") && response.charAt(2) == 'p') {
+			online.setText(response.substring(3));
+		}
+		else if(request.equals("rh") && response.charAt(2) == 'p') {
+			refreshChat(response.substring(3));
+		}
+		else if(request.equals("ru") && response.charAt(2) == 'p') {
+			refreshUsersList(response.substring(3));
+		}
+		else if(request.equals("ra")) {
+			if(response.charAt(2) == 'f') {
+				if(response.charAt(3) == '1') {
+					isready = false;
+					TextButton readybutton = stage.getRoot().findActor("readybutton");
+					readybutton.setText("Ready");
+				}
+				allreadytime.setVisible(false);
+			}
+			else {
+				allreadytime.setVisible(true);
+				
+				int timevalue = Integer.parseInt(response.substring(3));
+				allreadytime.setText(Math.max(timevalue, 0));
+				
+				if(timevalue == -10) {
+					changeState(new GameState(this, rname, name));
+				}
+			}
+		}
+		else if(request.equals("rr")) {
+			isready = !isready;
+			TextButton readybutton = stage.getRoot().findActor("readybutton");
+			readybutton.setText(isready ? "X Cancel" :"Ready");
+		}
+		else if (request.equals("rb") && response.charAt(2) == 'p'){
+			changeState(new LobbyState(this, name));
+		}
+	}
 	
+	private int getEndIndex(String s, int i, char stopchar) {
+		int num = 0; 
+		
+		
+		while(true) {
+			char c = s.charAt(i);
+			
+			if(c == stopchar) {
+				return num;
+			}
+			
+			int value = c - '0';
+			num *= 10;
+			num += value;
+			
+			i++;
+		}
+	}
 	
+	private int getBeginIndex(String s, int i, char stopchar) {
+		while(true) {
+			char c = s.charAt(i);
+			
+			if(c == stopchar) {
+				return i + 1;
+			}
+			
+			i++;
+		}
+	}
 	
 }

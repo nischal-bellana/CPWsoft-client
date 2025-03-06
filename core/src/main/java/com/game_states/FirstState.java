@@ -1,72 +1,36 @@
 package com.game_states;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class FirstState extends State{
 	
+	private String name;
+	
     FirstState(){
-    	create();
+    	super();
     }
     
     FirstState(State prevst){
-    	this.gsm = prevst.gsm;
-		
-		this.camera = prevst.camera;
-	    this.batch = prevst.batch;
-		this.mainvp = prevst.mainvp;
-		
-		this.skin = prevst.skin;
+    	super(prevst);
 		
 		createStage();
-    }
-    
-    @Override
-    public void create() {
-    	super.create();
-    }
-
-	@Override
-    public void render() {
-		super.render();
-    }
-
-    @Override
-    public void dispose() {
-    	super.dispose();
+		
+		serverbridge.closeSocket();
     }
 
 	@Override
@@ -97,8 +61,7 @@ public class FirstState extends State{
 				System.out.println("Connecting...");
 				String usernametext = name.getText();
 				usernametext = usernametext.trim();
-				if(validateUsername(usernametext) && connectServer(usernametext))
-				gsm.next_st = new HomeState(FirstState.this, usernametext);
+				if(validateUsername(usernametext)) connectServer(usernametext);
 			}
     		
     	});
@@ -109,9 +72,14 @@ public class FirstState extends State{
     	table.row();
     	table.add(label).center().padTop(18);
     	
-    	TextField tf = new TextField("108.123.34.5",skin);
+    	TextField tf = new TextField("localhost",skin);
+    	tf.setName("serverip");
     	table.row();
     	table.add(tf).height(18).padTop(18);
+    	
+    	TextButton playo = new TextButton("Play Offline", skin);
+    	table.row();
+		table.add(playo).padTop(50);
     	
     	table.setTouchable(Touchable.enabled);
     	table.addListener(new ClickListener() {
@@ -127,20 +95,18 @@ public class FirstState extends State{
 			}
     	});
     	
-    } 
-    
-    @Override
-	protected void stageRender(float delta) {
-		// TODO Auto-generated method stub
-    	super.stageRender(delta);
-	}
+    }
 	
+	
+
 	@Override
-	protected void preRender() {
+	protected void handleResponse(String response) {
 		// TODO Auto-generated method stub
-		super.preRender();
+		if(response.length() > 0 && response.charAt(0) == 'p') {
+			changeState(new HomeState(this, name));
+		}
 	}
-	
+
 	public boolean validateUsername(String username) {
 		if(username.length() <= 5 || username.length() > 14 || Character.isDigit(username.charAt(0))) return false;
 		for(int i = 0; i < username.length(); i++) {
@@ -151,24 +117,33 @@ public class FirstState extends State{
 		return true;
 	}
 
-	private boolean connectServer(String name) {
+	private void connectServer(String name) {
     	try {  
-    		if(server!=null && !server.isClosed()) server.close();
+    		if(serverbridge != null && serverbridge.isConnected()) serverbridge.closeSocket();;
     		
-			server = new Socket("localhost",1433);
+    		TextField tf = stage.getRoot().findActor("serverip");
+    		
+    		SocketAddress address = new InetSocketAddress(tf.getText(), 1323);
+    		Socket server = new Socket();
+
+    		int timeout = 3000;
+    		server.connect(address, timeout);
 			
-			in = new BufferedReader(new InputStreamReader(server.getInputStream())); 
-			out = new PrintWriter(server.getOutputStream(), true);
-			out.println(name);
-			String res = in.readLine();
+    		serverbridge = new ServerBridge(server, name);
+    		
+    		if(!serverbridge.isConnected()) {
+    			serverbridge.closeSocket();
+    			System.out.println("Connection failed server socket is closed");
+    			return;
+    		}
+    		
+    		this.name = name;
+    		Thread serverbridgethread = new Thread(serverbridge);
+    		serverbridgethread.start();
 			
-			if(res==null || res.equals("f")) return false;
-			
-			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
+			System.out.println("Connection failed");
 		}
     }
     

@@ -6,56 +6,65 @@ filter: Linear, Linear
 repeat: none
 back
   rotate: false
-  xy: 133, 250
+  xy: 133, 214
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 backbutton
   rotate: false
-  xy: 132, 124
+  xy: 263, 218
   size: 58, 56
   orig: 58, 56
   offset: 0, 0
   index: -1
 backbuttondown
   rotate: false
-  xy: 263, 254
+  xy: 323, 218
   size: 58, 56
   orig: 58, 56
   offset: 0, 0
   index: -1
 backbuttonover
   rotate: false
-  xy: 192, 124
+  xy: 383, 209
   size: 58, 56
   orig: 58, 56
   offset: 0, 0
   index: -1
 downbutton
   rotate: false
-  xy: 323, 258
+  xy: 443, 213
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 downbuttondown
   rotate: false
-  xy: 377, 249
+  xy: 263, 164
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 downbuttonover
   rotate: false
-  xy: 431, 249
+  xy: 317, 164
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
+endcardback
+  rotate: false
+  xy: 132, 19
+  size: 123, 125
+  split: 16, 16, 18, 13
+  pad: 17, 15, 21, 13
+  orig: 123, 125
+  offset: 0, 0
+  index: -1
 headback
   rotate: false
-  xy: 1, 119
+  xy: 1, 83
   size: 129, 129
   split: 10, 11, 10, 11
   pad: 13, 14, 12, 12
@@ -64,49 +73,49 @@ headback
   index: -1
 leftbutton
   rotate: false
-  xy: 323, 204
+  xy: 371, 155
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 leftbuttondown
   rotate: false
-  xy: 377, 195
+  xy: 425, 155
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 leftbuttonover
   rotate: false
-  xy: 431, 195
+  xy: 260, 110
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 rightbutton
   rotate: false
-  xy: 252, 128
+  xy: 314, 110
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 rightbuttondown
   rotate: false
-  xy: 306, 150
+  xy: 257, 56
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 rightbuttonover
   rotate: false
-  xy: 360, 141
+  xy: 311, 56
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 roundbutton
   rotate: false
-  xy: 468, 152
+  xy: 419, 58
   size: 43, 41
   split: 2, 3, 2, 1
   pad: 0, 0, 0, 0
@@ -115,7 +124,7 @@ roundbutton
   index: -1
 roundbuttondown
   rotate: false
-  xy: 468, 109
+  xy: 257, 13
   size: 43, 41
   split: 2, 3, 2, 2
   pad: 0, 0, 0, 0
@@ -124,7 +133,7 @@ roundbuttondown
   index: -1
 roundbuttonover
   rotate: false
-  xy: 1, 8
+  xy: 302, 13
   size: 43, 41
   split: 2, 3, 2, 2
   pad: 0, 0, 0, 0
@@ -133,7 +142,7 @@ roundbuttonover
   index: -1
 scrollpaneback
   rotate: false
-  xy: 1, 250
+  xy: 1, 214
   size: 130, 128
   split: 10, 9, 9, 9
   pad: 7, 6, 7, 7
@@ -142,21 +151,21 @@ scrollpaneback
   index: -1
 statusoff
   rotate: false
-  xy: 475, 362
+  xy: 475, 326
   size: 19, 16
   orig: 19, 16
   offset: 0, 0
   index: -1
 statuson
   rotate: false
-  xy: 414, 119
+  xy: 475, 304
   size: 18, 20
   orig: 18, 20
   offset: 0, 0
   index: -1
 textbutton
   rotate: false
-  xy: 1, 51
+  xy: 1, 15
   size: 126, 66
   split: 13, 14, 12, 12
   pad: 0, 0, 0, 0
@@ -165,7 +174,7 @@ textbutton
   index: -1
 textbuttondown
   rotate: false
-  xy: 132, 182
+  xy: 132, 146
   size: 126, 66
   split: 15, 15, 15, 10
   pad: 0, 0, 0, 0
@@ -174,7 +183,7 @@ textbuttondown
   index: -1
 textbuttonover
   rotate: false
-  xy: 263, 312
+  xy: 263, 276
   size: 126, 66
   split: 12, 13, 12, 12
   pad: 0, 0, 0, 0
@@ -183,14 +192,14 @@ textbuttonover
   index: -1
 textcursor
   rotate: false
-  xy: 260, 215
+  xy: 129, 48
   size: 1, 33
   orig: 1, 33
   offset: 0, 0
   index: -1
 textfieldback
   rotate: false
-  xy: 391, 303
+  xy: 391, 267
   size: 82, 75
   split: 0, 0, 0, 0
   pad: 10, 10, 0, 2
@@ -199,35 +208,42 @@ textfieldback
   index: -1
 upbutton
   rotate: false
-  xy: 414, 141
+  xy: 368, 101
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 upbuttondown
   rotate: false
-  xy: 306, 96
+  xy: 422, 101
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 upbuttonover
   rotate: false
-  xy: 360, 87
+  xy: 365, 47
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
+playernamefont
+  rotate: false
+  xy: 1, 344
+  size: 505, 30
+  orig: 505, 30
+  offset: 0, 0
+  index: -1
 swansea
   rotate: false
-  xy: 1, 444
+  xy: 1, 440
   size: 506, 65
   orig: 506, 65
   offset: 0, 0
   index: -1
 swanseabold
   rotate: false
-  xy: 1, 380
+  xy: 1, 376
   size: 506, 62
   orig: 506, 62
   offset: 0, 0

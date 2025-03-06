@@ -1,12 +1,17 @@
 package com.game_states;
 
 
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
 import com.GameObjects.Bomb;
 import com.GameObjects.BombFactory;
 import com.GameObjects.Ground;
 import com.GameObjects.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
@@ -14,23 +19,28 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2D;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import com.ray3k.stripe.scenecomposer.SceneComposerStageBuilder;
 
-public class GameState extends HomeState{
+public class GameState extends State{
 	
 	private TextureAtlas atlas;
 	private AtlasRegion backregion;
 	
+	String name;
 	String rname;
 			
 	private Array<Player> players;
 	private Player player;
+	private Sprite turnmark;
 	
-	private boolean isinput = false;
+	private int inputindex = 0;
+	private int index = 0;
 	private StringBuilder inputs;
 	
 	private BombFactory bombfactory;
@@ -38,65 +48,82 @@ public class GameState extends HomeState{
 	
 	private Ground ground;
 	
+	private UDPServerBridgeReceiver udpbridgereceiver;
+	private UDPServerBridgeSender udpbridgesender;
+	
 	GameState(State prevst, String name, String rname){
-		super(prevst, name);
+		super(prevst);
 		
+		this.name = name;
 		this.rname = rname;
 	}
 	
 	@Override
-	protected void create() {
+	public void create() {
 		// TODO Auto-generated method stub
-		Box2D.init();
 		
 		atlas = new TextureAtlas("packimgs//atlaspack.atlas");
 		
-		initStage();
+		inputs = new StringBuilder();
+		
+		message = new StringBuilder();
+		
+		initUDPServerBridge();
+		
+		createStage();
 		createGameObjects();
 		getRegions();
+		System.out.println("1.My index is : " + index + " inputindex is : " + inputindex);
 		System.out.println("In gamestate ");
 	}
 
 	@Override
-	protected void render() {
+	public void render() {
 		// TODO Auto-generated method stub
-		float delta = Gdx.graphics.getDeltaTime();
+		super.render();
 		
-	    preRender(delta);
+		 appendRequest("gb");
 		
-	    batchRender();
-	    
-	    stageRender(delta);
-	    
-	    polling();
 	    if(gsm.next_st != null) return;
 	    
-	    if(isinput) {
+	    updateTurnMark();
+	    
+	    if(index == inputindex) {
 	    	inputUpdate();
 	    }
+	    
+	    if(index == inputindex && inputs.length() > 0) {  
+			udpbridgesender.addMessage(inputs.toString());
+			inputs = new StringBuilder();
+		}
+	    
+	    applyUDPBroadcast(udpbridgereceiver.getBroadcast());
 	    
 	    ground.updateDepthBuffer();
 	}
 
 	@Override
-	protected void dispose() {
+	public void dispose() {
 		// TODO Auto-generated method stub
 		super.dispose();
 		
-		if(gsm.next_st == null) {
-			atlas.dispose();
-		}
+		atlas.dispose();
 		ground.disposeShapeRenderer();
+		udpbridgesender.closeSocket();
+		System.out.println("Closed Sender");
+		udpbridgereceiver.closeSocket();
+		System.out.println("Closed Receiver");
 	}
 
 	@Override
-	protected void resize(int width, int height) {
+	public void resize(int width, int height) {
 		// TODO Auto-generated method stub
-		mainvp.update(width, height);
+		super.resize(width, height);
 		ground.setUpdateDepthBuffer(true);
 	}
 	
-	private void initStage() {
+	@Override
+	protected void createStage() {
 		stage = new Stage(mainvp);
 		Gdx.input.setInputProcessor(stage);
 		SceneComposerStageBuilder builder = new SceneComposerStageBuilder();
@@ -110,6 +137,7 @@ public class GameState extends HomeState{
 		
 		createGround();
 		createPlayers();
+
 	}
 	
 	private void createGround() {
@@ -120,14 +148,18 @@ public class GameState extends HomeState{
 	private void createPlayers() {
 		players = new Array<>();
 		
-		String response = sendMsg("gn");
-		int size = Integer.parseInt(response.substring(1));
+		serverbridge.addMessage("gn");
 		
-		response = sendMsg("gx");
-		int index = Integer.parseInt(response.substring(1));
+		String response = forceResponse("gn");
 		
-		for(int i = 0; i < size; i++) {
-			Player player = new Player(mainvp, atlas);
+		String[] responsesplitted = response.substring(1).split("&");
+		
+		index = Integer.parseInt(responsesplitted[0]);
+		
+		String[] names = responsesplitted[1].split(",");
+		
+		for(int i = 0; i < names.length; i++) {
+			Player player = new Player(stage, skin, names[i], mainvp, atlas);
 			
 			players.add(player);
 		}
@@ -138,38 +170,36 @@ public class GameState extends HomeState{
 	
 	private void getRegions() {
 		backregion = atlas.findRegion("back");
+		turnmark = new Sprite(atlas.findRegion("currentplayermarker"));
+		turnmark.setBounds(0, 0, 0.3f, 0.3f);
+		
+		Drawable scrollpaneback = skin.getDrawable("scrollpaneback");
+		scrollpaneback.setMinHeight(20);
+		Drawable back = skin.getDrawable("back");
+		back.setMinHeight(15);
+		back.setMinWidth(0);
 	}
 	
 	private void inputUpdate() {
-		inputs = new StringBuilder("gi");
+		
+		if(inputs.length() != 0) inputs = new StringBuilder();
 		
 		if(Gdx.input.isKeyJustPressed(Input.Keys.W)) {
 //			playerbody.setLinearVelocity(0, 10);
-			inputs.append('t');
-		}
-		else {
-			inputs.append('f');
+			inputs.append('w');
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.A)) {
 //			playerbody.applyForceToCenter(-3, 0, false);
-			inputs.append('t');
-		}
-		else {
-			inputs.append('f');
+			inputs.append('a');
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.D)) {
 //			playerbody.applyForceToCenter(3, 0, false);
-			inputs.append('t');
-		}
-		else {
-			inputs.append('f');
+			inputs.append('d');
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
 //			player.toggleWeapon();
-			inputs.append('t');
-		}
-		else {
-			inputs.append('f');
+			inputs.append('c');
+			player.setPowerLevel(player.getPowerLevel() == -1? 0 : -1);
 		}
 		
 //		if(player.weaponReady() && !player.bombAlive()) {
@@ -182,11 +212,9 @@ public class GameState extends HomeState{
 //			}
 //		}
 		if(player.getPowerLevel() != -1) {
-			inputs.append(';');
-			inputs.append(getPowerIndicatorAngle(player));
+			if(Gdx.input.isTouched()) inputs.append('t');
 			
-			inputs.append(';');
-			inputs.append(Gdx.input.isTouched() ? 't' : 'f');
+			inputs.append(getPowerIndicatorAngle(player));
 			
 		}
 		
@@ -215,6 +243,8 @@ public class GameState extends HomeState{
 	    	players.get(i).drawSprites(batch);
 	    }
 	    
+	    turnmark.draw(batch);
+	    
 	    for(int i = 0; i < bombs.size; i++) {
 	    	bombs.get(i).draw(batch);
 	    }
@@ -223,7 +253,7 @@ public class GameState extends HomeState{
 	}
 
 	@Override
-	protected void preRender(float delta) {
+	protected void preRender() {
 		// TODO Auto-generated method stub
 		ScreenUtils.clear(1, 1, 1, 1f);
 		camera.update();
@@ -232,68 +262,202 @@ public class GameState extends HomeState{
 	}
 
 	@Override
+	protected void handleResponse(String response) {
+		// TODO Auto-generated method stub
+		String request = response.substring(0, 2);
+		
+		if(request.equals("gg") && response.charAt(2) == 'f') {
+			changeState(new RoomState(this, rname, name));
+		}
+		else if(request.equals("gb") && response.charAt(2) == 'p') {
+			applyBroadcast(response.substring(3));
+		}
+		
+		
+	}
+
+	@Override
 	protected void polling() {
 		// TODO Auto-generated method stub
 		
-		String response = sendMsg("gg");
-		
-		if(response.charAt(0) == 'f') {
-			gsm.next_st = new RoomState(this, name, rname);
-			return;
-		}
-		
-		getBroadcast();
-		
-		if(isinput && inputs.length() > 2) {
-			response = sendMsg(inputs.toString());
-		}
-		
-		response = sendMsg("gt");
-		isinput = response.charAt(0) == 'p';
+		appendRequest("gg");
 		
 	}
 	
-	private void getBroadcast() {
-		String response = sendMsg("gb");
+	private void applyBroadcast(String broadcast) {
 		
-		if(response.charAt(0) != 'p') return;
+		String[] broadcastsplitted = broadcast.split(":", -1);
 		
-		String[] broadcast = response.substring(1).split(";", -1);
-		
-		updatePlayers(broadcast);
-		
-		updateBombs(broadcast);
-		
-		updateGroundFixtures(broadcast);
-		
-		updateTime(broadcast);
-		
-		updateCurrentPlayer(broadcast);
+		for(String segment: broadcastsplitted) {
+			handleBroadcastSegment(segment);
+		}
 		
 	}
 	
-	private void updatePlayers(String[] broadcast) {
+	private void handleBroadcastSegment(String segment) {
+		switch(segment.charAt(0)) {
+		case 'p':
+			playersRemoval(segment);
+			break;
+		case 'i':
+			inputChange(segment);
+			break;
+		case 'd':
+			playersDamage(segment);
+			break;
+		case 's':
+			playersScore(segment);
+			break;
+		case 'b':
+			bombsRemoveOrAdd(segment);
+			break;
+		case 'g':
+			updateGroundFixtures(segment);
+			break;
+		}
+	}
+	
+	private void playersRemoval(String segment) {
+		String data = segment.substring(1);
+		String[] removedindicessplitted = data.split(",");
 		
-		if(!broadcast[0].equals("")) {
+		for(String removedindexstr : removedindicessplitted) {
 			
-			String[] removedindicessplitted = broadcast[0].split(",");
+			int removedindex = Integer.parseInt(removedindexstr);
 			
-			for(String removedindexstr : removedindicessplitted) {
-				
-				int removedindex = Integer.parseInt(removedindexstr);
-				
-				players.removeIndex(removedindex);
-				
+			Player aplayer = players.removeIndex(removedindex);
+			
+			stage.getRoot().removeActor(aplayer.getNameLabel());
+			
+		}
+		
+		index = players.indexOf(player, true);
+	}
+	
+	private void inputChange(String segment) {
+		inputindex = Integer.parseInt(segment.substring(1));
+		Label currentplayer = (Label)stage.getRoot().findActor("currentplayer");
+		currentplayer.setText(players.get(inputindex).getName());
+	}
+	
+	private void playersDamage(String segment) {
+		String[] data = segment.substring(1).split(",");
+		
+		for(String playerdata : data) {
+			String[] playerdatasplitted =  playerdata.split("&");
+			int i = Integer.parseInt(playerdatasplitted[0]);
+			Player aplayer = players.get(i);
+			
+			int damage = Integer.parseInt(playerdatasplitted[1]);
+			aplayer.damageBy(damage);
+			
+			Sprite sprite = aplayer.getSprite();
+			Label damagelabel = new Label("-" + playerdatasplitted[1], skin);
+			damagelabel.setColor(Color.RED);
+			damagelabel.setPosition((sprite.getX() + sprite.getWidth())*32, (sprite.getY() + sprite.getHeight())*32);
+			damagelabel.addAction(Actions.sequence(Actions.moveBy(32, 32, 1f), Actions.removeActor()));
+			stage.getRoot().addActor(damagelabel);
+		}
+	}
+	
+	private void playersScore(String segment) {
+		String[] data = segment.substring(1).split(",");
+		
+		for(String playerdata : data) {
+			String[] playerdatasplitted =  playerdata.split("&");
+			int i = Integer.parseInt(playerdatasplitted[0]);
+			Player aplayer = players.get(i);
+			
+			int score = Integer.parseInt(playerdatasplitted[1]);
+			aplayer.scoreBy(score);
+			
+			Sprite sprite = aplayer.getSprite();
+			Label scorelabel = new Label("+" + playerdatasplitted[1], skin);
+			scorelabel.setColor(Color.GREEN);
+			scorelabel.setPosition(sprite.getX()*32, (sprite.getY() + sprite.getHeight())*32);
+			scorelabel.addAction(Actions.sequence(Actions.moveBy(-32, 32, 1f), Actions.removeActor()));
+			stage.getRoot().addActor(scorelabel);
+		}
+	}
+	
+	private void bombsRemoveOrAdd(String segment) {
+		int addcount = Integer.parseInt(segment.substring(1));
+		
+		if(addcount > 0) {
+			for(int i = 0; i < addcount; i++) {
+				bombs.add(bombfactory.generateBomb());
 			}
-			
+		}
+		else {
+			addcount = Math.abs(addcount);
+			for(int i = 0; i < addcount; i++) {
+				bombs.removeIndex(0);
+			}
+		}
+	}
+	
+	private void updateGroundFixtures(String segment) {
+		
+		String[] data = segment.substring(1).split("&", -1);
+		
+		for(String datum: data) {
+			if(datum.charAt(0) == 'c') {
+				groundAddFixtures(datum.substring(1));
+			}
+			else {
+				groundRemoveFixtures(datum.substring(1));
+			}
 		}
 		
-		String[] playersdata = broadcast[1].split("&");
+	}
+	
+	private void groundAddFixtures(String fixturesstr) {
+		String[] fixtures = fixturesstr.split("c");
+		System.out.println("No of fixtures: " + fixtures.length);
+		for(int i = 0; i < fixtures.length; i++) {
+			String[] coordinates = fixtures[i].split(",");
+			float[] arr = new float[coordinates.length];
+			
+			for(int j = 0; j < arr.length; j++) {
+				arr[j] = Float.parseFloat(coordinates[j]);
+			}
+			ground.addFixture(arr);
+			
+		}
+	}
+	
+	private void groundRemoveFixtures(String indicesstr) {
+		String[] fixtureIndices = indicesstr.split("d");
+		
+		for(int i = 0; i < fixtureIndices.length; i++) {
+			ground.removeFixture(Integer.parseInt(fixtureIndices[i]));
+		}
+	}
+	
+	private void applyUDPBroadcast(String broadcast) {
+		if(broadcast.length() == 0) return;
+		
+		String[] broadcastsplitted = broadcast.split(":", -1);
+		
+		if(broadcastsplitted.length != 3) return;
+		
+		updatePlayersSprites(broadcastsplitted);
+		
+		updateBombsSprites(broadcastsplitted);
+		
+		updateTime(broadcastsplitted);
+		
+	}
+	
+	private void updatePlayersSprites(String[] broadcastsplitted) {
+		String[] playersdata = broadcastsplitted[0].split("&");
+		
+		if(playersdata.length != players.size) return;
 		
 		for(int i = 0; i < players.size; i++) {
 			Player aplayer = players.get(i);
 			
-			String[] playerdata = playersdata[i].split("#");
+			String[] playerdata = playersdata[i].split("#", -1);
 			String[] position = playerdata[0].split(",");
 			
 			aplayer.centerSpriteToHere(Float.parseFloat(position[0]), Float.parseFloat(position[1]));
@@ -309,84 +473,45 @@ public class GameState extends HomeState{
 			}
 			
 			if(aplayer.getPowerLevel() != -1) aplayer.updatePowerIndicator();
-			
 		}
+		
 	}
 	
-	private void updateBombs(String[] broadcast) {
-		String[] bombsdata = broadcast[2].split("&", -1);
+	private void updateBombsSprites(String[] broadcastsplitted) {
+		if(broadcastsplitted[1].length() == 0) return;
 		
-		int addcount = Integer.parseInt(bombsdata[0]);
+		String[] bombsdatastr = broadcastsplitted[1].split("#");
 		
-		for(int i = 0; i < addcount; i++) {
-			bombs.add(bombfactory.generateBomb());
-		}
+		if(bombsdatastr.length != bombs.size) return;
 		
-		if(!bombsdata[1].equals("")) {
-			String[] bombsremovedstr = bombsdata[1].split(",");
+		for(int i = 0; i < bombs.size; i++) {
+			Bomb bomb = bombs.get(i);
+			String[] bombdatastr = bombsdatastr[i].split(",");
 			
-			for(String bombremovedstr : bombsremovedstr) {
-				int index = Integer.parseInt(bombremovedstr);
-				bombs.removeIndex(index);
+			float x = 0;
+			try {
+				x = Float.parseFloat(bombdatastr[0]);
 			}
+			catch(Exception e) {
+				printsa(bombsdatastr);
+			}
+			float y = Float.parseFloat(bombdatastr[1]);
+			float angle = Float.parseFloat(bombdatastr[2]);
+			
+			bomb.setCenter(x, y);
+			bomb.setRotation(angle);
 		}
 		
-		if(bombs.size != 0) {
-			String[] bombsdatastr = bombsdata[2].split("#");
-			for(int i = 0; i < bombs.size; i++) {
-				Bomb bomb = bombs.get(i);
-				String[] bombdatastr = bombsdatastr[i].split(",");
-				
-				float x = Float.parseFloat(bombdatastr[0]);
-				float y = Float.parseFloat(bombdatastr[1]);
-				float angle = Float.parseFloat(bombdatastr[2]);
-				
-				bomb.setCenter(x, y);
-				bomb.setRotation(angle);
-				
-			}
-		}
 	}
 	
-	private void updateGroundFixtures(String[] broadcast) {
-		if(!broadcast[3].equals("")) {
-			String[] fixtures = broadcast[3].split("c");
-			System.out.println("No of fixtures: " + fixtures.length);
-			for(int i = 0; i < fixtures.length; i++) {
-				String[] coordinates = fixtures[i].split(",");
-				float[] arr = new float[coordinates.length];
-				
-				for(int j = 0; j < arr.length; j++) {
-					arr[j] = Float.parseFloat(coordinates[j]);
-				}
-				ground.addFixture(arr);
-				
-			}
-		}
-		
-		if(!broadcast[4].equals("")) {
-			String[] fixtureIndices = broadcast[4].split("d");
-			
-			for(int i = 0; i < fixtureIndices.length; i++) {
-				ground.removeFixture(Integer.parseInt(fixtureIndices[i]));
-			}
-			
-		}
-	}
-	
-	private void updateTime(String[] broadcast) {
-		String[] timers =  broadcast[5].split(",");
+	private void updateTime(String[] broadcastsplitted) {
+		String[] timers =  broadcastsplitted[2].split(",");
 		
 		Label matchtimer = (Label)stage.getRoot().findActor("matchtimer");
 		matchtimer.setText(timers[0]);
 		
 		Label turntimer = (Label)stage.getRoot().findActor("turntimer");
 		turntimer.setText(timers[1]);
-	}
-	
-	private void updateCurrentPlayer(String[] broadcast) {
-		Label currentplayer = (Label)stage.getRoot().findActor("currentplayer");
-		currentplayer.setText(broadcast[6]);
 	}
 	
 	private float getPowerIndicatorAngle(Player player) {
@@ -397,15 +522,65 @@ public class GameState extends HomeState{
 		return vector.angleDeg();
 	}
 	
+	private void updateTurnMark() {
+		Sprite currentplayersprite = players.get(inputindex).getSprite();
+	    turnmark.setCenter(currentplayersprite.getX() + (currentplayersprite.getWidth()/2), currentplayersprite.getY() + currentplayersprite.getHeight() + (turnmark.getWidth()/2));
+	}
+	
 	private void printsa(String[] arr) {
-		System.out.print("->");
+		System.out.print("||");
 		for(int i = 0; i < arr.length; i++) {
 			System.out.print(arr[i]);
 			if(i < arr.length-1) {
 				System.out.print("^");
 			}
 		}
-		System.out.println("<-");
+		System.out.println("||");
+	}
+	
+	private String forceResponse(String request) {
+		String return_message = serverbridge.pollReturnMessage();
+		
+		while(true) {
+			if(return_message.equals("")) {
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return_message = serverbridge.pollReturnMessage();
+				continue;
+			}
+			
+			String[] responses = return_message.split(";");
+			
+			for(String response : responses) {
+				if(response.substring(0, 2).equals(request)) {
+					return response.substring(2);
+				}
+			}
+			
+			return_message = serverbridge.pollReturnMessage();
+			
+		}
+		
+	}
+	
+	private void initUDPServerBridge() {
+		try {
+			udpbridgereceiver = new UDPServerBridgeReceiver(serverbridge);
+			udpbridgesender = new UDPServerBridgeSender(serverbridge);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Thread udpthread1 = new Thread(udpbridgereceiver);
+		udpthread1.start();
+		
+		Thread udpthread2 = new Thread(udpbridgesender);
+		udpthread2.start();
 	}
 	
 }

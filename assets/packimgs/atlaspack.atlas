@@ -18,6 +18,13 @@ bomb
   orig: 1024, 1024
   offset: 0, 0
   index: -1
+currentplayermarker
+  rotate: false
+  xy: 740, 430
+  size: 42, 39
+  orig: 42, 39
+  offset: 0, 0
+  index: -1
 example
   rotate: false
   xy: 3512, 3684

@@ -22,10 +22,16 @@ public class PlayerWorld {
 		return body;
 	}
 	
+	public Player getPlayer() {
+		return player;
+	}
+	
 	public BombContext getBombContext() {
 		BombContext context = new BombContext();
 		
-		context.setAngle(body.getAngle());
+		float angle = (float) Math.toRadians(player.getPowerSprite().getRotation());
+		
+		context.setAngle(angle);
 		
 		Vector2 position = new Vector2(0.5f, 0);
 		position.setAngleRad(context.getAngle());

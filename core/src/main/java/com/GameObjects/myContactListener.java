@@ -52,10 +52,23 @@ public class myContactListener implements ContactListener {
 		if(tryPlayerAndGroundWorld(fixtureA, fixtureB, true)) return;
 		
 		if(tryClipAndGroundWorld(fixtureA, fixtureB)) return;
+		
+		tryPlayerAndClip(fixtureA, fixtureB);
 	}
 	
 	private void resolveFixturesEnd(Fixture fixtureA, Fixture fixtureB) {
 		if(tryPlayerAndGroundWorld(fixtureA, fixtureB, false)) return;
+	}
+	
+	private boolean tryPlayerAndClip(Fixture fixtureA, Fixture fixtureB) {
+		if(!isPlayer(fixtureA) && !isPlayer(fixtureB)) return false;
+		if(!isClip(fixtureA) && !isClip(fixtureB)) return false;
+		
+		if(isPlayer(fixtureA)) resolvePlayerAndClip(fixtureA, fixtureB);
+		else resolvePlayerAndClip(fixtureB, fixtureA);
+		
+		
+		return true;
 	}
 	
 	private boolean tryPlayerAndGroundWorld(Fixture fixtureA, Fixture fixtureB, boolean begin) {
@@ -91,8 +104,8 @@ public class myContactListener implements ContactListener {
 	private boolean tryClip(Fixture fixtureA, Fixture fixtureB) {
 		if(!isClip(fixtureA) && !isClip(fixtureB)) return false;
 		
-		if(isClip(fixtureA)) resolveClip((Clip) fixtureA.getUserData());
-		else resolveClip((Clip) fixtureB.getUserData());
+		if(isClip(fixtureA)) resolveClip((Clip) fixtureA.getUserData(), fixtureB);
+		else resolveClip((Clip) fixtureB.getUserData(), fixtureA);
 		
 		return true;
 	}
@@ -131,6 +144,32 @@ public class myContactListener implements ContactListener {
 		
 	}
 	
+	private void resolvePlayerAndClip(Fixture playerfixture, Fixture clipfixture) {
+		if(playerfixture.isSensor()) return;
+		
+		PlayerWorld playerworld = (PlayerWorld) playerfixture.getUserData();
+		
+		Clip clip = (Clip) clipfixture.getUserData();
+		
+		Player player = playerworld.getPlayer();
+		
+		Vector2 position1 = clip.getPosition();
+		
+		Vector2 position2 = playerfixture.getBody().getPosition().cpy();
+		
+		position2.sub(position1);
+		float damageratio = 0.1f/position2.len2();
+		
+		float damage = damageratio < 1 ? 30 * damageratio : 30;
+		
+		player.addDamage((int)damage);
+		
+		Player scorer = clip.getPlayer();
+		
+		scorer.addScorePoints((int)damage);
+		
+	}
+	
 	private void resolvePlayerAndGround(Fixture playerfixture, Fixture groundfixture, boolean begin) {
 		PlayerWorld playerworld = (PlayerWorld)playerfixture.getUserData();
 		
@@ -146,8 +185,27 @@ public class myContactListener implements ContactListener {
 		bomb.requestDestroyBomb(bombfixture.getBody().getLinearVelocity().len());
 	}
 	
-	private void resolveClip(Clip clip) {
+	private void resolveClip(Clip clip, Fixture otherfixture) {
 		clip.requestDestroyClip();
+		
+		if(isGroundWorld(otherfixture)) return;
+		
+		if(clip.processedBody(otherfixture.getBody())) return;
+		clip.addToProcessedBody(otherfixture.getBody());
+		
+		Vector2 position1 = clip.getPosition();
+		
+		Vector2 position2 = otherfixture.getBody().getPosition().cpy();
+		
+		position2.sub(position1);
+		float damageratio = 0.1f/position2.len2();
+		
+		float impulse = damageratio < 1 ? damageratio*1 : 1;
+		
+		System.out.println("Impulse = " + impulse);
+		
+		otherfixture.getBody().applyLinearImpulse(position2.scl(impulse/position2.len()), otherfixture.getBody().getPosition(), false);
+		
 	}
 	
 	private boolean isClip(Fixture fixture) {

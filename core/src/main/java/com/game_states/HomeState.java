@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.SocketException;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -22,67 +23,23 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class HomeState extends State{
 	
-	Label online;
-	String name; 
-	float time = 0;
+	private Label online;
+	private String name;
 	
 	HomeState(State prevst, String name){
-		this.gsm = prevst.gsm;
-		
-		this.camera = prevst.camera;
-	    this.batch = prevst.batch;
-		this.mainvp = prevst.mainvp;
-		
-		this.skin = prevst.skin;
-		
-		this.server = prevst.server;
-		this.in = prevst.in;
-		this.out = prevst.out;
+		super(prevst);
 		
 		this.name = name;
 		
-		create();
 	}
 
 	@Override
-	protected void create() {
+	public void create() {
 		// TODO Auto-generated method stub
 		createStage();
-	}
-
-	@Override
-	protected void render() {
-		// TODO Auto-generated method stub
-		float delta = Gdx.graphics.getDeltaTime();
 		
-		preRender(delta);
+		message = new StringBuilder();
 		
-		batchRender();
-		
-		stageRender(delta);
-	}
-
-	@Override
-	protected void dispose() {
-		// TODO Auto-generated method stub
-		super.dispose();
-		if(gsm.next_st != null && gsm.next_st instanceof FirstState) {
-			if(server != null && !server.isClosed()) {
-				try {
-					sendMsg("hb");
-					server.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	        }
-		}
-	}
-
-	@Override
-	protected void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		mainvp.update(width, height);
 	}
 
 	@Override
@@ -101,7 +58,7 @@ public class HomeState extends State{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				gsm.next_st = new FirstState(HomeState.this);
+				appendRequest("hb");
 			}
 		});
 		table.add(back);
@@ -127,64 +84,37 @@ public class HomeState extends State{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				System.out.println("Into Lobby");
-				gsm.next_st = new LobbyState(HomeState.this, name);
+				appendRequest("ho");
 			}
 			
 		});
-		
-		table.row();
-		
-		TextButton playo = new TextButton("Play Offline", skin);
-		table.add(playo).colspan(5).padTop(50);
-		
 	}
 
 	@Override
-	protected void stageRender(float delta) {
-		// TODO Auto-generated method stub
-		super.stageRender(delta);
-	}
-
-	@Override
-	protected void batchRender() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	protected void preRender(float delta) {
-		// TODO Auto-generated method stub
-		super.preRender();
-		
-		time += delta;
-		
-		if(time > 0.3f) {
-			polling();
-			time = 0;
-		}
-	}
-	
-	protected synchronized String sendMsg(String sending) {
-		String received = "";
-		try {
-			out.println(sending);
-			
-			received = in.readLine();
-		}
-		catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}
-		return received;
-	}
-	
 	protected void polling() {
-		String received = sendMsg("co");
-		if(received.equals("f")) {
-			online.setText(0);
+		// TODO Auto-generated method stub
+		appendRequest("co");
+	}
+
+	@Override
+	protected void handleResponse(String response) {
+		// TODO Auto-generated method stub
+		String request = response.substring(0, 2);
+		
+		if(request.equals("co") && response.charAt(2) == 'p') {
+			online.setText(response.substring(3));
 			return;
 		}
-		online.setText(received.substring(1));
+		
+		else if(request.equals("hb") && response.charAt(2) == 'p') {
+			changeState(new FirstState(this));
+		}
+		
+		else if(request.equals("ho") && response.charAt(2) == 'p') {
+			changeState(new LobbyState(this, name));
+		}
 	}
+	
+	
 	
 }

@@ -27,48 +27,64 @@ public class State {
 	
 	protected Stage stage;
 	
-	protected Socket server;
-	protected BufferedReader in;
-	protected PrintWriter out;
+	protected ServerBridge serverbridge;
+	protected float poll_breaktime = 0;
+	protected StringBuilder message;
 	
-	protected void create() {
+	public State() {
+		
+	}
+	
+	public State(State prevst) {
+		this.gsm = prevst.gsm;
+		
+		this.camera = prevst.camera;
+	    this.batch = prevst.batch;
+		this.mainvp = prevst.mainvp;
+		
+		this.skin = prevst.skin;
+		
+		this.serverbridge = prevst.serverbridge;
+	}
+	
+	public void create() {
 		initCamera();
     	
 		skin = new Skin(Gdx.files.internal("packimgs//skin.json"));
         
         createStage();
+        
+        message = new StringBuilder();
 	}
 	
-	protected void render() {
+	public void render() {
 		float delta = Gdx.graphics.getDeltaTime();
+		poll_breaktime += delta;
 		
 		preRender();
-        
-        batchRender();
-        
-        stageRender(delta);
+		
+		batchRender();
+		
+		stageRender(delta);
+		
+		postRenderUpdate();
+		
 	}
 	
-	protected void dispose() {
+	public void dispose() {
 		if(gsm.next_st==null) {
 			batch.dispose();
 	        stage.dispose();
 	        skin.dispose();
-	        if(server != null && !server.isClosed()) {
-				try {
-					out.println("cc");
-					server.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	        if(serverbridge != null && serverbridge.isConnected()) {
+	        	serverbridge.closeSocket();
 	        }
 	        return;
 		}
 		stage.dispose();
 	}
 	
-	protected void resize(int width,int height) {
+	public void resize(int width,int height) {
 		mainvp.update(width, height);
 	}
 	
@@ -106,19 +122,58 @@ public class State {
         batch = new SpriteBatch();
     }
     
-    public int toNum(String s) {
-		int n = 0;
-		
-		for(int i=0; i<s.length(); i++) {
-			char c = s.charAt(i);
-			if(Character.isDigit(c)) {
-				n *= 10;
-				n += c - '0';
-			}
+    protected void postRenderUpdate() {
+		// TODO Auto-generated method stub
+    	if(serverbridge == null) return;
+    	
+		if(poll_breaktime > 0.3f) {
+			polling();
+			poll_breaktime = 0;
 		}
 		
-		return n;
+		if(message.length() > 0) {
+			message.deleteCharAt(message.length() - 1);
+			addMessage(message.toString());
+			
+			message = new StringBuilder();
+		}
+		
+		String return_message = serverbridge.pollReturnMessage();
+		
+		if(return_message.length() > 0) {
+			String[] responses = return_message.split(";");
+			
+			for(String response : responses) {
+				handleResponse(response);
+			}
+			
+		}
 		
 	}
+	
+	protected void appendRequest(String request) {
+		message.append(request);
+		message.append(';');
+	}
+	
+	protected void handleResponse(String response) {
+		
+	}
+	
+	protected void polling() {
+		
+	}
+    
+    private void addMessage(String message) {
+		if(serverbridge == null || !serverbridge.isConnected()) return;
+		
+		serverbridge.addMessage(message);
+		
+	}
+    
+    protected void changeState(State newstate) {
+    	gsm.next_st = newstate;
+    	if(serverbridge != null) serverbridge.clearQueues();
+    }
     
 }
