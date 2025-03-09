@@ -1,7 +1,7 @@
 # CPWsoft-client
  Inspired from Crazy Penguin Wars game (old facebook game). Uses TCP and UDP sockets.
 
-##Instructions to run :
+#Instructions to run :
 Download and run server using instructions [here](https://github.com/nischal-bellana/CPWsoft-server-headless/blob/master/README.md)
 
 Download client app [here](https://drive.google.com/drive/folders/1WJ4jE4-BjqAaRQxci8ySW0LexqRAwWET?usp=drive_link)
