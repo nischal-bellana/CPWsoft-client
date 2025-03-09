@@ -100,6 +100,7 @@ public class GameState extends State{
 	    applyUDPBroadcast(udpbridgereceiver.getBroadcast());
 	    
 	    ground.updateDepthBuffer();
+	    
 	}
 
 	@Override
@@ -349,14 +350,7 @@ public class GameState extends State{
 			Player aplayer = players.get(i);
 			
 			int damage = Integer.parseInt(playerdatasplitted[1]);
-			aplayer.damageBy(damage);
-			
-			Sprite sprite = aplayer.getSprite();
-			Label damagelabel = new Label("-" + playerdatasplitted[1], skin);
-			damagelabel.setColor(Color.RED);
-			damagelabel.setPosition((sprite.getX() + sprite.getWidth())*32, (sprite.getY() + sprite.getHeight())*32);
-			damagelabel.addAction(Actions.sequence(Actions.moveBy(32, 32, 1f), Actions.removeActor()));
-			stage.getRoot().addActor(damagelabel);
+			aplayer.damageBy(damage, skin, stage);
 		}
 	}
 	
@@ -369,14 +363,7 @@ public class GameState extends State{
 			Player aplayer = players.get(i);
 			
 			int score = Integer.parseInt(playerdatasplitted[1]);
-			aplayer.scoreBy(score);
-			
-			Sprite sprite = aplayer.getSprite();
-			Label scorelabel = new Label("+" + playerdatasplitted[1], skin);
-			scorelabel.setColor(Color.GREEN);
-			scorelabel.setPosition(sprite.getX()*32, (sprite.getY() + sprite.getHeight())*32);
-			scorelabel.addAction(Actions.sequence(Actions.moveBy(-32, 32, 1f), Actions.removeActor()));
-			stage.getRoot().addActor(scorelabel);
+			aplayer.scoreBy(score, skin, stage);
 		}
 	}
 	

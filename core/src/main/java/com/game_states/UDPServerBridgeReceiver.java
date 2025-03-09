@@ -36,7 +36,13 @@ public class UDPServerBridgeReceiver implements Runnable{
 		
 		while(!broadcast.equals("pass")) {
 			try {
+				
+				System.out.println("Sending Hello..");
+				
 				sendMessage("hello");
+				
+				System.out.println("port bound: " + socket.getLocalPort());
+				
 				receiveMessage();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -50,10 +56,10 @@ public class UDPServerBridgeReceiver implements Runnable{
 		while(running) {
 			
 			try {
+				
 				receiveMessage();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				
 			}
 		}
 		
@@ -84,6 +90,10 @@ public class UDPServerBridgeReceiver implements Runnable{
 		
 		socket.send(packet);
 		
+		packet = new DatagramPacket(content, content.length, serverip, 1433);
+		
+		socket.send(packet);
+		
 	}
 	
 	private synchronized void receiveMessage() throws IOException {
@@ -91,15 +101,11 @@ public class UDPServerBridgeReceiver implements Runnable{
 		
 		packet = new DatagramPacket(content, content.length);
 		
-		System.out.println("Receiving...");
-		
 		socket.receive(packet);
 		
 		synchronized(broadcastlock) {
 			broadcast = data(content);
-			System.out.println("Received: " + broadcast);
 		}
-		
 	}
 	
 	private String data(byte[] a) 

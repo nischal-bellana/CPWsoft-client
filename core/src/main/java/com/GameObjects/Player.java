@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
@@ -29,7 +30,7 @@ public class Player {
 	private int score = 0;
 	private Queue<Integer> damages;
 	private Queue<Integer> scorepoints;
-	
+	private float respawntime = 0;
 	
 	private AtlasRegion[] powerindicators;
 	private Sprite powersprite;
@@ -101,6 +102,10 @@ public class Player {
 		}
 	}
 	
+	public int getHealth() {
+		return health;
+	}
+	
 	public void addDamage(int amount) {
 		int min = Math.min(amount, health);
 		damages.addLast(min);
@@ -124,22 +129,56 @@ public class Player {
 		
 	}
 	
-	public void damageBy(int amount) {
+	public void damageBy(int amount, Skin skin, Stage stage) {
 		health -= amount;
 		ProgressBar healthbar = stats.findActor("healthbar");
 		healthbar.setValue(health);
 		Label healthlabel = stats.findActor("healthlabel");
 		healthlabel.setText(health);
+		
+		Label damagelabel = new Label("-" + amount, skin);
+		damagelabel.setColor(Color.RED);
+		damagelabel.setPosition((sprite.getX() + sprite.getWidth())*32, (sprite.getY() + sprite.getHeight())*32);
+		damagelabel.addAction(Actions.sequence(Actions.moveBy(32, 32, 1f), Actions.removeActor()));
+		stage.getRoot().addActor(damagelabel);
+		
 	}
 	
-	public void scoreBy(int amount) {
+	public void scoreBy(int amount, Skin skin, Stage stage) {
 		score += amount;
 		Label scorelabel = stats.findActor("score");
 		scorelabel.setText(score);
+		
+		Label scorechangelabel = new Label("+" + amount, skin);
+		scorechangelabel.setColor(Color.GREEN);
+		scorechangelabel.setPosition(sprite.getX()*32, (sprite.getY() + sprite.getHeight())*32);
+		scorechangelabel.addAction(Actions.sequence(Actions.moveBy(-32, 32, 1f), Actions.removeActor()));
+		stage.getRoot().addActor(scorechangelabel);
 	}
 	
 	public int getScore() {
 		return score;
+	}
+	
+	public void respawn(Skin skin, Stage stage) {
+		damageBy(-100, skin, stage);
+		scoreBy(-20, skin, stage);
+		
+		damages.clear();
+		scorepoints.clear();
+		
+	}
+	
+	public void passrespawntime(float delta) {
+		respawntime += delta;
+	}
+	
+	public float getRespawnTime() {
+		return respawntime;
+	}
+	
+	public void resetRespawnTime() {
+		respawntime = 0;
 	}
 	
 	public String getName() {

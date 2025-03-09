@@ -28,16 +28,9 @@ public class FirstState extends State{
     FirstState(State prevst){
     	super(prevst);
 		
-		createStage();
-		
+		if(serverbridge != null && serverbridge.isConnected())
 		serverbridge.closeSocket();
     }
-
-	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		mainvp.update(width, height);
-	}
     
 	@Override
     protected void createStage(){
@@ -80,6 +73,15 @@ public class FirstState extends State{
     	TextButton playo = new TextButton("Play Offline", skin);
     	table.row();
 		table.add(playo).padTop(50);
+		playo.addListener(new ChangeListener() {
+
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				// TODO Auto-generated method stub
+				changeState(new GameStateOffline(FirstState.this));
+			}
+			
+		});
     	
     	table.setTouchable(Touchable.enabled);
     	table.addListener(new ClickListener() {
