@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.utils.ParsingUtils;
 
 public class State {
 	//fields
@@ -124,6 +125,7 @@ public class State {
     
     protected void postRenderUpdate() {
 		// TODO Auto-generated method stub
+    	
     	if(serverbridge == null) return;
     	
 		if(poll_breaktime > 0.3f) {
@@ -132,7 +134,6 @@ public class State {
 		}
 		
 		if(message.length() > 0) {
-			message.deleteCharAt(message.length() - 1);
 			addMessage(message.toString());
 			
 			message = new StringBuilder();
@@ -141,10 +142,13 @@ public class State {
 		String return_message = serverbridge.pollReturnMessage();
 		
 		if(return_message.length() > 0) {
-			String[] responses = return_message.split(";");
-			
-			for(String response : responses) {
-				handleResponse(response);
+			for(int i = 0; i < return_message.length();) {
+				int start = ParsingUtils.getBeginIndex(i, return_message, '&');
+				int end = start + ParsingUtils.parseInt(i, start - 1, return_message);
+				
+				handleResponse(start, end, return_message);
+				
+				i = end;
 			}
 			
 		}
@@ -152,11 +156,10 @@ public class State {
 	}
 	
 	protected void appendRequest(String request) {
-		message.append(request);
-		message.append(';');
+		ParsingUtils.appendData(request, message);
 	}
 	
-	protected void handleResponse(String response) {
+	protected void handleResponse(int start, int end, String response) {
 		
 	}
 	

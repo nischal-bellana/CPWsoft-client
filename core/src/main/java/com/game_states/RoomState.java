@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.utils.ParsingUtils;
 
 public class RoomState extends State{
 	
@@ -135,38 +136,38 @@ public class RoomState extends State{
 		table.add(allreadytime).right().colspan(3).height(50).width(50);
 	}
 	
-	protected void refreshUsersList(String data) {
+	protected void refreshUsersList(int start, int end, String return_message) {
 		userslist.clearChildren();
 		Label users = new Label("Users", skin, "head");
 		userslist.add(users).padBottom(20).height(50).width(80);
 		userslist.row();
 		
-		if(data.equals("")) return;
-		String[] usernames = data.split(",");
+		if(end - start == 0) return;
 		
-		for(String user: usernames) {
-			String[] usersplitted = user.split("&");
-			Label label = new Label(usersplitted[0], skin);
+		for(int i = start; i < end;) {
+			
+			int start1 = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end1 = start1 + ParsingUtils.parseInt(i, start1 - 1, return_message);
+			int start2 = ParsingUtils.getBeginIndex(start1, return_message, '&');
+			
+			Label label = new Label(return_message.substring(start1, start2 - 1), skin);
 			userslist.add(label).padBottom(20);
 			Image statusimg = new Image();
-			statusimg.setDrawable(skin.getDrawable(usersplitted[1].equals("p")?"statuson" : "statusoff"));
+			statusimg.setDrawable(skin.getDrawable(return_message.charAt(start2) == 'p' ? "statuson" : "statusoff"));
 			userslist.add(statusimg).padBottom(20);
 			userslist.row();
+			
+			i = end1;
 		}
 	}
 	
-	private void refreshChat(String newchat) {
-		int i = 0;
+	private void refreshChat(int start, int end, String return_message) {
 		
-		System.out.println("newchat: " + newchat);
-		
-		while(i < newchat.length()) {
-			int beginindex = getBeginIndex(newchat, i, '&');
-			int endindex = beginindex + getEndIndex(newchat, i, '&');
-			String clientname = newchat.substring(beginindex, endindex);
+		for(int i = start; i < end;) {
+			int beginindex = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int endindex = beginindex + ParsingUtils.parseInt(i, beginindex - 1, return_message);
+			String clientname = return_message.substring(beginindex, endindex);
 			i = endindex;
-			
-			System.out.println("1." + beginindex + " " + endindex);
 			
 			boolean myMessage = clientname.equals(name);
 			
@@ -177,12 +178,10 @@ public class RoomState extends State{
 				chatarea.add(clientlabel).expandX().left();
 			}
 			
-			beginindex = getBeginIndex(newchat, i, '&');
-			endindex = beginindex + getEndIndex(newchat, i, '&');
-			String message = newchat.substring(beginindex, endindex);
+			beginindex = ParsingUtils.getBeginIndex(i, return_message, '&');
+			endindex = beginindex + ParsingUtils.parseInt(i, beginindex - 1, return_message);
+			String message = return_message.substring(beginindex, endindex);
 			i = endindex;
-			
-			System.out.println("2." + beginindex + " " + endindex);
 			
 			Label messagelabel = new Label(message, skin);
 			chatarea.row();
@@ -220,32 +219,31 @@ public class RoomState extends State{
 	}
 
 	@Override
-	protected void handleResponse(String response) {
+	protected void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
-		String request = response.substring(0, 2);
 		
-		if(request.equals("rn") && response.charAt(2) == 'p') {
-			online.setText(response.substring(3));
+		if(ParsingUtils.requestCheck(start, return_message, "rn") && return_message.charAt(start + 2) == 'p') {
+			online.setText(ParsingUtils.parseInt(start + 3, end, return_message));
 		}
-		else if(request.equals("rh") && response.charAt(2) == 'p') {
-			refreshChat(response.substring(3));
+		else if(ParsingUtils.requestCheck(start, return_message, "rh") && return_message.charAt(start + 2) == 'p') {
+			refreshChat(start + 3, end, return_message);
 		}
-		else if(request.equals("ru") && response.charAt(2) == 'p') {
-			refreshUsersList(response.substring(3));
+		else if(ParsingUtils.requestCheck(start, return_message, "ru") && return_message.charAt(start + 2) == 'p') {
+			refreshUsersList(start + 3, end, return_message);
 		}
-		else if(request.equals("ra")) {
-			if(response.charAt(2) == 'f') {
-				if(response.charAt(3) == '1') {
+		else if(ParsingUtils.requestCheck(start, return_message, "ra")) {
+			if(return_message.charAt(start + 2) == 'f') {
+				if(return_message.charAt(start + 3) == '1') {
 					isready = false;
 					TextButton readybutton = stage.getRoot().findActor("readybutton");
 					readybutton.setText("Ready");
 				}
 				allreadytime.setVisible(false);
-			}
+			} 
 			else {
 				allreadytime.setVisible(true);
 				
-				int timevalue = Integer.parseInt(response.substring(3));
+				int timevalue = ParsingUtils.parseInt(start + 3, end, return_message);
 				allreadytime.setText(Math.max(timevalue, 0));
 				
 				if(timevalue == -10) {
@@ -253,44 +251,13 @@ public class RoomState extends State{
 				}
 			}
 		}
-		else if(request.equals("rr")) {
+		else if(ParsingUtils.requestCheck(start, return_message, "rr")) {
 			isready = !isready;
 			TextButton readybutton = stage.getRoot().findActor("readybutton");
 			readybutton.setText(isready ? "X Cancel" :"Ready");
 		}
-		else if (request.equals("rb") && response.charAt(2) == 'p'){
+		else if (ParsingUtils.requestCheck(start, return_message, "rb") && return_message.charAt(start + 2) == 'p'){
 			changeState(new LobbyState(this, name));
-		}
-	}
-	
-	private int getEndIndex(String s, int i, char stopchar) {
-		int num = 0; 
-		
-		
-		while(true) {
-			char c = s.charAt(i);
-			
-			if(c == stopchar) {
-				return num;
-			}
-			
-			int value = c - '0';
-			num *= 10;
-			num += value;
-			
-			i++;
-		}
-	}
-	
-	private int getBeginIndex(String s, int i, char stopchar) {
-		while(true) {
-			char c = s.charAt(i);
-			
-			if(c == stopchar) {
-				return i + 1;
-			}
-			
-			i++;
 		}
 	}
 	

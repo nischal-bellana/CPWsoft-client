@@ -102,9 +102,9 @@ public class FirstState extends State{
 	
 
 	@Override
-	protected void handleResponse(String response) {
+	protected void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
-		if(response.length() > 0 && response.charAt(0) == 'p') {
+		if(end - start > 0 && return_message.charAt(start) == 'p') {
 			changeState(new HomeState(this, name));
 		}
 	}

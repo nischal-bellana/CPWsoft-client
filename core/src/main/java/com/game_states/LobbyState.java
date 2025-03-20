@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
+import com.utils.ParsingUtils;
 
 public class LobbyState extends State{
 	private String name;
@@ -146,7 +147,7 @@ public class LobbyState extends State{
 		table.add(bottombar);
 	}
 	
-	protected void refreshRooms(String data) {
+	protected void refreshRooms(int start, int end, String return_message) {
 		scrtable.clearChildren();
 		scrtable.add();
 		Label roomshead = new Label("Room Name", skin, "head");
@@ -157,45 +158,50 @@ public class LobbyState extends State{
 		bgrp.clear();
 		bgrp.setMinCheckCount(0);
 		
-		System.out.println("refreshing rooms ...");
-		if(data.equals("")) return;
-		String[] roomnames = data.split(",");
-		
-		for(String roomdata: roomnames) {
-			String[] room = roomdata.split("&");
+		if(end - start == 0) return;
+
+		for(int i = start; i < end;) {
+			
+			int start1 = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end1 = start1 + ParsingUtils.parseInt(i, start1 - 1 , return_message);
+			
 			TextButton button = new TextButton("", skin, "checkenable");
-			button.setName(roomdata);
+			button.setName(return_message.substring(start1, end1));
 			bgrp.add(button);
 			scrtable.add(button).size(50).padBottom(20);
-			Label label = new Label(room[0], skin);
+			
+			int start2 = ParsingUtils.getBeginIndex(start1, return_message, '&');
+			
+			Label label = new Label(return_message.substring(start1, start2 - 1), skin);
 			scrtable.add(label).padBottom(20);
-			Label no = new Label(room[1]+"/5", skin);
+			Label no = new Label(ParsingUtils.parseInt(start2, end1, return_message) +"/5", skin);
 			scrtable.add(no).padBottom(20);
 			scrtable.row();
+			
+			i = end1;
 		}
 		
 	}
 	
 	@Override
-	protected void handleResponse(String response) {
+	protected void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
-		String request = response.substring(0, 2);
 		
-		if(request.equals("co") && response.charAt(2) == 'p') {
-			online.setText(response.substring(3));
+		if(ParsingUtils.requestCheck(start, return_message, "co") && return_message.charAt(start + 2) == 'p') {
+			online.setText(ParsingUtils.parseInt(start + 3, end, return_message));
 		}
-		else if(request.equals("lr") && response.charAt(2) == 'p') {
-			refreshRooms(response.substring(3));
+		else if(ParsingUtils.requestCheck(start, return_message, "lr") && return_message.charAt(start + 2) == 'p') {
+			refreshRooms(start + 3, end, return_message);
 		}
-		else if(request.equals("lf") && response.charAt(2) == 'p') {
-			refreshRooms(request.substring(3));
+		else if(ParsingUtils.requestCheck(start, return_message, "lf") && return_message.charAt(start + 2) == 'p') {
+			refreshRooms(start + 3, end, return_message);
 		}
-		else if(request.equals("lj") && response.charAt(2) == 'p') {
-			String roomname = response.substring(3);
+		else if(ParsingUtils.requestCheck(start, return_message, "lj") && return_message.charAt(start + 2) == 'p') {
+			String roomname = return_message.substring(start + 3, end);
 			changeState(new RoomState(this, name, roomname));
 		}
-		else if(request.equals("lc") && response.charAt(2) == 'p') {
-			String roomname = response.substring(3);
+		else if(ParsingUtils.requestCheck(start, return_message, "lc") && return_message.charAt(start + 2) == 'p') {
+			String roomname = return_message.substring(start + 3, end);
 			changeState(new RoomState(this, name, roomname));
 		}
 	}

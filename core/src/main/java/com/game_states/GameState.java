@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import com.ray3k.stripe.scenecomposer.SceneComposerStageBuilder;
+import com.utils.ParsingUtils;
 
 public class GameState extends State{
 	
@@ -73,7 +74,7 @@ public class GameState extends State{
 		createStage();
 		createGameObjects();
 		getRegions();
-		System.out.println("1.My index is : " + index + " inputindex is : " + inputindex);
+
 		System.out.println("In gamestate ");
 	}
 
@@ -263,15 +264,14 @@ public class GameState extends State{
 	}
 
 	@Override
-	protected void handleResponse(String response) {
+	protected void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
-		String request = response.substring(0, 2);
 		
-		if(request.equals("gg") && response.charAt(2) == 'f') {
+		if(ParsingUtils.requestCheck(start, return_message, "gg") && return_message.charAt(start + 2) == 'f') {
 			changeState(new RoomState(this, rname, name));
 		}
-		else if(request.equals("gb") && response.charAt(2) == 'p') {
-			applyBroadcast(response.substring(3));
+		else if(ParsingUtils.requestCheck(start, return_message, "gb") && return_message.charAt(start + 2) == 'p') {
+			applyBroadcast(start + 3, end, return_message);
 		}
 		
 		
@@ -285,90 +285,97 @@ public class GameState extends State{
 		
 	}
 	
-	private void applyBroadcast(String broadcast) {
-		
-		String[] broadcastsplitted = broadcast.split(":", -1);
-		
-		for(String segment: broadcastsplitted) {
-			handleBroadcastSegment(segment);
+	private void applyBroadcast(int start, int end, String return_message) {
+		for(int i = start; i < end; ) {
+			int start1 = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end1 = start1 + ParsingUtils.parseInt(i, start1 - 1, return_message);
+			
+			handleBroadcastSegment(start1, end1, return_message);
+			
+			i = end1;
 		}
 		
 	}
 	
-	private void handleBroadcastSegment(String segment) {
-		switch(segment.charAt(0)) {
+	private void handleBroadcastSegment(int start, int end, String return_message) {
+		switch(return_message.charAt(start)) {
 		case 'p':
-			playersRemoval(segment);
+			playersRemoval(start + 1, end, return_message);
 			break;
 		case 'i':
-			inputChange(segment);
+			inputChange(start + 1, end, return_message);
 			break;
 		case 'd':
-			playersDamage(segment);
+			playersDamage(start + 1, end, return_message);
 			break;
 		case 's':
-			playersScore(segment);
+			playersScore(start + 1, end, return_message);
 			break;
 		case 'b':
-			bombsRemoveOrAdd(segment);
+			bombsRemoveOrAdd(start + 1, end, return_message);
 			break;
 		case 'g':
-			updateGroundFixtures(segment);
+			updateGroundFixtures(start + 1, end, return_message);
 			break;
 		}
 	}
 	
-	private void playersRemoval(String segment) {
-		String data = segment.substring(1);
-		String[] removedindicessplitted = data.split(",");
-		
-		for(String removedindexstr : removedindicessplitted) {
+	private void playersRemoval(int start, int end, String return_message) {
+		for(int i = start; i < end;) {
+			int start1 = ParsingUtils.getBeginIndex(i, end, return_message, '&');
 			
-			int removedindex = Integer.parseInt(removedindexstr);
+			int removedindex = ParsingUtils.parseInt(i, start1 - 1, return_message);
 			
 			Player aplayer = players.removeIndex(removedindex);
 			
 			stage.getRoot().removeActor(aplayer.getNameLabel());
 			
+			i = start1;
 		}
 		
 		index = players.indexOf(player, true);
 	}
 	
-	private void inputChange(String segment) {
-		inputindex = Integer.parseInt(segment.substring(1));
+	private void inputChange(int start, int end, String return_message) {
+		inputindex = ParsingUtils.parseInt(start, end, return_message);
 		Label currentplayer = (Label)stage.getRoot().findActor("currentplayer");
 		currentplayer.setText(players.get(inputindex).getName());
 	}
 	
-	private void playersDamage(String segment) {
-		String[] data = segment.substring(1).split(",");
-		
-		for(String playerdata : data) {
-			String[] playerdatasplitted =  playerdata.split("&");
-			int i = Integer.parseInt(playerdatasplitted[0]);
-			Player aplayer = players.get(i);
+	private void playersDamage(int start, int end, String return_message) {
+		for(int i = start; i < end;) {
+			int start1 = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end1 = start1 + ParsingUtils.parseInt(i, start1 - 1, return_message);
 			
-			int damage = Integer.parseInt(playerdatasplitted[1]);
+			int start2 = ParsingUtils.getBeginIndex(start1, return_message, '&');
+			int ind = ParsingUtils.parseInt(start1, start2 - 1, return_message);
+			Player aplayer = players.get(ind);
+			
+			int damage = ParsingUtils.parseInt(start2, end1, return_message);
 			aplayer.damageBy(damage, skin, stage);
-		}
-	}
-	
-	private void playersScore(String segment) {
-		String[] data = segment.substring(1).split(",");
-		
-		for(String playerdata : data) {
-			String[] playerdatasplitted =  playerdata.split("&");
-			int i = Integer.parseInt(playerdatasplitted[0]);
-			Player aplayer = players.get(i);
 			
-			int score = Integer.parseInt(playerdatasplitted[1]);
-			aplayer.scoreBy(score, skin, stage);
+			i = end1;
 		}
 	}
 	
-	private void bombsRemoveOrAdd(String segment) {
-		int addcount = Integer.parseInt(segment.substring(1));
+	private void playersScore(int start, int end, String return_message) {
+		for(int i = start; i < end;) {
+			int start1 = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end1 = start1 + ParsingUtils.parseInt(i, start1 - 1, return_message);
+			
+			int start2 = ParsingUtils.getBeginIndex(start1, return_message, '&');
+			int ind = ParsingUtils.parseInt(start1, start2 - 1, return_message);
+			Player aplayer = players.get(ind);
+			
+			int scorepoint = ParsingUtils.parseInt(start2, end1, return_message);
+			aplayer.scoreBy(scorepoint, skin, stage);
+			
+			i = end1;
+		}
+	}
+	
+	private void bombsRemoveOrAdd(int start, int end, String return_message) {
+		int addcount = ParsingUtils.parseInt(start, end, return_message);
 		
 		if(addcount > 0) {
 			for(int i = 0; i < addcount; i++) {
@@ -383,42 +390,58 @@ public class GameState extends State{
 		}
 	}
 	
-	private void updateGroundFixtures(String segment) {
+	private void updateGroundFixtures(int start, int end, String return_message) {
 		
-		String[] data = segment.substring(1).split("&", -1);
-		
-		for(String datum: data) {
-			if(datum.charAt(0) == 'c') {
-				groundAddFixtures(datum.substring(1));
+		for(int i = start; i < end;) {
+			int start1 = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end1 = start1 + ParsingUtils.parseInt(i, start1 - 1, return_message);
+			
+			if(return_message.charAt(start1) == 'c') {
+				groundAddFixtures(start1 + 1, end1, return_message);
 			}
 			else {
-				groundRemoveFixtures(datum.substring(1));
+				groundRemoveFixtures(start1 + 1, end1, return_message);
 			}
+			
+			
+			i = end1;
 		}
 		
 	}
 	
-	private void groundAddFixtures(String fixturesstr) {
-		String[] fixtures = fixturesstr.split("c");
-		System.out.println("No of fixtures: " + fixtures.length);
-		for(int i = 0; i < fixtures.length; i++) {
-			String[] coordinates = fixtures[i].split(",");
-			float[] arr = new float[coordinates.length];
+	private void groundAddFixtures(int start, int end, String return_message) {
+		for(int i = start; i < end;) {
+			int start1 = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end1 = start1 + ParsingUtils.parseInt(i, start1 - 1, return_message);
 			
-			for(int j = 0; j < arr.length; j++) {
-				arr[j] = Float.parseFloat(coordinates[j]);
+			int start2 = ParsingUtils.getBeginIndex(start1, return_message, '&');
+			int len = ParsingUtils.parseInt(start1, start2 - 1, return_message);
+			
+			float[] arr = new float[len];
+			
+			for(int i2 = start2, j = 0; i2 < end1 && j < arr.length; j++) {
+				int start3 = ParsingUtils.getBeginIndex(i2, end1, return_message, '&');
+				
+				arr[j] = ParsingUtils.parseFloat(i2, start3 - 1, return_message);
+				
+				i2 = start3;
 			}
+			
 			ground.addFixture(arr);
 			
+			i = end1;
 		}
 	}
 	
-	private void groundRemoveFixtures(String indicesstr) {
-		String[] fixtureIndices = indicesstr.split("d");
-		
-		for(int i = 0; i < fixtureIndices.length; i++) {
-			ground.removeFixture(Integer.parseInt(fixtureIndices[i]));
+	private void groundRemoveFixtures(int start, int end, String return_message) {
+		for(int i = start; i < end;) {
+			int start1 = ParsingUtils.getBeginIndex(i, end, return_message, '&');
+			
+			ground.removeFixture(ParsingUtils.parseInt(i, start1 - 1, return_message));
+			
+			i = start1;
 		}
+		
 	}
 	
 	private void applyUDPBroadcast(String broadcast) {

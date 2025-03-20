@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.utils.ParsingUtils;
 
 public class HomeState extends State{
 	
@@ -97,20 +98,20 @@ public class HomeState extends State{
 	}
 
 	@Override
-	protected void handleResponse(String response) {
+	protected void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
-		String request = response.substring(0, 2);
 		
-		if(request.equals("co") && response.charAt(2) == 'p') {
-			online.setText(response.substring(3));
+		if(ParsingUtils.requestCheck(start, return_message, "co") && return_message.charAt(start + 2) == 'p') {
+			online.setText(ParsingUtils.parseInt(start + 3, end, return_message));
 			return;
 		}
 		
-		else if(request.equals("hb") && response.charAt(2) == 'p') {
+		if(ParsingUtils.requestCheck(start, return_message, "hb") && return_message.charAt(start + 2) == 'p') {
 			changeState(new FirstState(this));
+			return;
 		}
 		
-		else if(request.equals("ho") && response.charAt(2) == 'p') {
+		if(ParsingUtils.requestCheck(start, return_message, "ho") && return_message.charAt(start + 2) == 'p') {
 			changeState(new LobbyState(this, name));
 		}
 	}
