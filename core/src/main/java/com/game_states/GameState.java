@@ -150,20 +150,24 @@ public class GameState extends State{
 	private void createPlayers() {
 		players = new Array<>();
 		
-		serverbridge.addMessage("gn");
+		serverbridge.addMessage("2&gn");
 		
-		String response = forceResponse("gn");
+		String return_message = forceResponse();
+		int start = ParsingUtils.getBeginIndex(0, return_message, '&');
+		start += 3;
+		int end = ParsingUtils.getBeginIndex(start, return_message, '&');
 		
-		String[] responsesplitted = response.substring(1).split("&");
+		index = ParsingUtils.parseInt(start, end - 1, return_message);
+		start = end;
 		
-		index = Integer.parseInt(responsesplitted[0]);
-		
-		String[] names = responsesplitted[1].split(",");
-		
-		for(int i = 0; i < names.length; i++) {
-			Player player = new Player(stage, skin, names[i], mainvp, atlas);
+		for(int i = start; i < return_message.length();) {
+			end = ParsingUtils.getBeginIndex(i, return_message.length(), return_message, '&');
+			
+			Player player = new Player(stage, skin, return_message.substring(i, end - 1), mainvp, atlas);
 			
 			players.add(player);
+			
+			i = end;
 		}
 		
 		player = players.get(index);
@@ -445,83 +449,101 @@ public class GameState extends State{
 	}
 	
 	private void applyUDPBroadcast(String broadcast) {
-		if(broadcast.length() == 0) return;
-		
-		String[] broadcastsplitted = broadcast.split(":", -1);
-		
-		if(broadcastsplitted.length != 3) return;
-		
-		updatePlayersSprites(broadcastsplitted);
-		
-		updateBombsSprites(broadcastsplitted);
-		
-		updateTime(broadcastsplitted);
-		
-	}
-	
-	private void updatePlayersSprites(String[] broadcastsplitted) {
-		String[] playersdata = broadcastsplitted[0].split("&");
-		
-		if(playersdata.length != players.size) return;
-		
-		for(int i = 0; i < players.size; i++) {
-			Player aplayer = players.get(i);
+		for(int i = 0; i < broadcast.length();) {
+			int start = ParsingUtils.getBeginIndex(i, broadcast.length(), broadcast, '&');
+			int end = start + ParsingUtils.parseInt(i, start - 1, broadcast);
 			
-			String[] playerdata = playersdata[i].split("#", -1);
-			String[] position = playerdata[0].split(",");
-			
-			aplayer.centerSpriteToHere(Float.parseFloat(position[0]), Float.parseFloat(position[1]));
-			
-			if(playerdata[1].charAt(0) == 't') {
-				String[] powerdata = playerdata[1].substring(1).split(",");
-				
-				aplayer.setPowerLevel(Integer.parseInt(powerdata[0]));
-				aplayer.getPowerSprite().setRotation(Float.parseFloat(powerdata[1]));
+			if(broadcast.charAt(start) == 'p') {
+				updatePlayersDyn(start + 1, end, broadcast);
+			}
+			else if(broadcast.charAt(start) == 'b') {
+				updateBombsDyn(start + 1, end, broadcast);
 			}
 			else {
-				aplayer.setPowerLevel(-1);
+				updateTimes(start + 1, end, broadcast);
 			}
 			
-			if(aplayer.getPowerLevel() != -1) aplayer.updatePowerIndicator();
+			i = end;
 		}
 		
 	}
 	
-	private void updateBombsSprites(String[] broadcastsplitted) {
-		if(broadcastsplitted[1].length() == 0) return;
-		
-		String[] bombsdatastr = broadcastsplitted[1].split("#");
-		
-		if(bombsdatastr.length != bombs.size) return;
-		
-		for(int i = 0; i < bombs.size; i++) {
-			Bomb bomb = bombs.get(i);
-			String[] bombdatastr = bombsdatastr[i].split(",");
+	private void updatePlayersDyn(int start, int end, String broadcast) {
+		for(int i = start; i < end;) {
+			int start2 = ParsingUtils.getBeginIndex(i, broadcast, '&');
+			int end2 = start2 + ParsingUtils.parseInt(i, start2 - 1, broadcast);
 			
-			float x = 0;
-			try {
-				x = Float.parseFloat(bombdatastr[0]);
-			}
-			catch(Exception e) {
-				printsa(bombsdatastr);
-			}
-			float y = Float.parseFloat(bombdatastr[1]);
-			float angle = Float.parseFloat(bombdatastr[2]);
+			int start3 = start2;
+			int end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			int playerindex = ParsingUtils.parseInt(start3, end3 - 1, broadcast);
+			if(playerindex >= players.size) return;
 			
-			bomb.setCenter(x, y);
-			bomb.setRotation(angle);
+			start3 = end3;
+			end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			float x = ParsingUtils.parseFloat(start3, end3 - 1, broadcast);
+			
+			start3 = end3;
+			end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			float y = ParsingUtils.parseFloat(start3, end3 - 1, broadcast);
+			
+			start3 = end3;
+			end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			float angle = ParsingUtils.parseFloat(start3, end3 - 1, broadcast);
+			
+			start3 = end3;
+			end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			int level = ParsingUtils.parseInt(start3, end3 - 1, broadcast);
+			
+			Player aplayer = players.get(playerindex);
+			aplayer.getSprite().setPosition(x, y);
+			
+			aplayer.getPowerSprite().setRotation(angle);
+			
+			aplayer.setPowerLevel(level);
+			
+			i = end2;
 		}
-		
 	}
 	
-	private void updateTime(String[] broadcastsplitted) {
-		String[] timers =  broadcastsplitted[2].split(",");
+	private void updateBombsDyn(int start, int end, String broadcast) {
+		for(int i = start; i < end;) {
+			int start2 = ParsingUtils.getBeginIndex(i, broadcast, '&');
+			int end2 = start2 + ParsingUtils.parseInt(i, start2 - 1, broadcast);
+			
+			int start3 = start2;
+			int end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			int bombindex = ParsingUtils.parseInt(start3, end3 - 1, broadcast);
+			if(bombindex >= bombs.size) return;
+			
+			start3 = end3;
+			end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			float x = ParsingUtils.parseFloat(start3, end3 - 1, broadcast);
+			
+			start3 = end3;
+			end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			float y = ParsingUtils.parseFloat(start3, end3 - 1, broadcast);
+			
+			start3 = end3;
+			end3 = ParsingUtils.getBeginIndex(start3, end2, broadcast, '&');
+			float angle = ParsingUtils.parseFloat(start3, end3 - 1, broadcast);
+			
+			Bomb bomb = bombs.get(bombindex);
+			bomb.getSprite().setPosition(x, y);
+			bomb.getSprite().setRotation(angle);
+			
+			i = end2;
+		}
+	}
+	
+	private void updateTimes(int start, int end, String broadcast) {
+		int start2 = ParsingUtils.getBeginIndex(start, end, broadcast, '&');
+		int mtchtmer = ParsingUtils.parseInt(start, start2 - 1, broadcast);
+		int trntmer = ParsingUtils.parseInt(start2, end, broadcast);
 		
 		Label matchtimer = (Label)stage.getRoot().findActor("matchtimer");
-		matchtimer.setText(timers[0]);
-		
+		matchtimer.setText(mtchtmer);
 		Label turntimer = (Label)stage.getRoot().findActor("turntimer");
-		turntimer.setText(timers[1]);
+		turntimer.setText(trntmer);
 	}
 	
 	private float getPowerIndicatorAngle(Player player) {
@@ -548,32 +570,12 @@ public class GameState extends State{
 		System.out.println("||");
 	}
 	
-	private String forceResponse(String request) {
+	private String forceResponse() {
 		String return_message = serverbridge.pollReturnMessage();
-		
-		while(true) {
-			if(return_message.equals("")) {
-				try {
-					Thread.sleep(20);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return_message = serverbridge.pollReturnMessage();
-				continue;
-			}
-			
-			String[] responses = return_message.split(";");
-			
-			for(String response : responses) {
-				if(response.substring(0, 2).equals(request)) {
-					return response.substring(2);
-				}
-			}
-			
+		while(return_message.length() == 0) {
 			return_message = serverbridge.pollReturnMessage();
-			
 		}
+		return return_message;
 		
 	}
 	

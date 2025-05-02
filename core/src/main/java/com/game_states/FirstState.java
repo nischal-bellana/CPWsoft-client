@@ -99,8 +99,6 @@ public class FirstState extends State{
     	
     }
 	
-	
-
 	@Override
 	protected void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
