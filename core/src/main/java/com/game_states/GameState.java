@@ -4,6 +4,7 @@ package com.game_states;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import com.GameObjects.Bomb;
 import com.GameObjects.BombFactory;
@@ -161,9 +162,10 @@ public class GameState extends State{
 		start = end;
 		
 		for(int i = start; i < return_message.length();) {
-			end = ParsingUtils.getBeginIndex(i, return_message.length(), return_message, '&');
+			start = ParsingUtils.getBeginIndex(i, return_message, '&');
+			end = start + ParsingUtils.parseInt(i, start - 1, return_message);
 			
-			Player player = new Player(stage, skin, return_message.substring(i, end - 1), mainvp, atlas);
+			Player player = new Player(stage, skin, return_message.substring(start, end), mainvp, atlas);
 			
 			players.add(player);
 			
@@ -191,6 +193,7 @@ public class GameState extends State{
 		if(inputs.length() != 0) inputs = new StringBuilder();
 		
 		if(Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+			System.out.println("pressed up");
 //			playerbody.setLinearVelocity(0, 10);
 			inputs.append('w');
 		}
@@ -204,8 +207,8 @@ public class GameState extends State{
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
 //			player.toggleWeapon();
+			System.out.println("pressed space");
 			inputs.append('c');
-			player.setPowerLevel(player.getPowerLevel() == -1? 0 : -1);
 		}
 		
 //		if(player.weaponReady() && !player.bombAlive()) {
@@ -500,6 +503,8 @@ public class GameState extends State{
 			aplayer.getPowerSprite().setRotation(angle);
 			
 			aplayer.setPowerLevel(level);
+			
+			aplayer.updatePowerIndicator();
 			
 			i = end2;
 		}
