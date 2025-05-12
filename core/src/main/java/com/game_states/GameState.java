@@ -34,8 +34,8 @@ public class GameState extends State{
 	private TextureAtlas atlas;
 	private AtlasRegion backregion;
 	
-	String name;
-	String rname;
+	private String name;
+	private String rname;
 			
 	private Array<Player> players;
 	private Player player;
@@ -53,31 +53,28 @@ public class GameState extends State{
 	private UDPServerBridgeReceiver udpbridgereceiver;
 	private UDPServerBridgeSender udpbridgesender;
 	
-	GameState(State prevst, String name, String rname){
-		super(prevst);
-		
-		this.name = name;
-		this.rname = rname;
-	}
-	
 	@Override
-	public void create() {
+	public void create(State prevst) {
 		// TODO Auto-generated method stub
+		super.create(prevst);
+		
+		name = prevst.next_state_inf[0];
+		rname = prevst.next_state_inf[1];
 		
 		atlas = new TextureAtlas("packimgs//atlaspack.atlas");
 		
 		inputs = new StringBuilder();
 		
-		message = new StringBuilder();
+		tcp_frame_message = new StringBuilder();
 		
 		initUDPServerBridge();
 		
 		createStage();
 		createGameObjects();
 		getRegions();
-
-		System.out.println("In gamestate ");
 	}
+
+
 
 	@Override
 	public void render() {
@@ -126,7 +123,7 @@ public class GameState extends State{
 	}
 	
 	@Override
-	protected void createStage() {
+	public void createStage() {
 		stage = new Stage(mainvp);
 		Gdx.input.setInputProcessor(stage);
 		SceneComposerStageBuilder builder = new SceneComposerStageBuilder();
@@ -230,14 +227,7 @@ public class GameState extends State{
 	}
 
 	@Override
-	protected void stageRender(float delta) {
-		// TODO Auto-generated method stub
-		stage.act(delta);
-	    stage.draw();
-	}
-
-	@Override
-	protected void batchRender() {
+	public void batchRender() {
 		// TODO Auto-generated method stub
 		batch.begin();
 		
@@ -262,7 +252,7 @@ public class GameState extends State{
 	}
 
 	@Override
-	protected void preRender() {
+	public void preRender() {
 		// TODO Auto-generated method stub
 		ScreenUtils.clear(1, 1, 1, 1f);
 		camera.update();
@@ -271,11 +261,14 @@ public class GameState extends State{
 	}
 
 	@Override
-	protected void handleResponse(int start, int end, String return_message) {
+	public void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
 		
 		if(ParsingUtils.requestCheck(start, return_message, "gg") && return_message.charAt(start + 2) == 'f') {
-			changeState(new RoomState(this, rname, name));
+			next_state_inf = new String[2];
+			next_state_inf[0] = name;
+			next_state_inf[1] = rname;
+			changeState(new RoomState());
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "gb") && return_message.charAt(start + 2) == 'p') {
 			applyBroadcast(start + 3, end, return_message);
@@ -285,7 +278,7 @@ public class GameState extends State{
 	}
 
 	@Override
-	protected void polling() {
+	protected void poll() {
 		// TODO Auto-generated method stub
 		
 		appendRequest("gg");

@@ -26,27 +26,32 @@ public class RoomState extends State{
 	int chatIndex = 0;
 	String chatrequest = "rh0";
 	boolean isready = false;
-	
-	public RoomState(State prevst, String name, String rname) {
-		super(prevst);
-		this.name = name;
-		this.rname = rname;
-		
-		// TODO Auto-generated constructor stub
-	}
 
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
 		createStage();
 		
-		message = new StringBuilder();
+		tcp_frame_message = new StringBuilder();
 		
 		appendRequest("ri");
 	}
+	
+	
+	
+	@Override
+	public void create(State prevst) {
+		// TODO Auto-generated method stub
+		super.create(prevst);
+		
+		name = prevst.next_state_inf[0];
+		rname = prevst.next_state_inf[1];
+	}
+
+
 
 	@Override
-	protected void createStage() {
+	public void createStage() {
 		// TODO Auto-generated method stub
 		Table table = new Table();
 		table.setBackground(skin.getDrawable("back"));
@@ -202,7 +207,7 @@ public class RoomState extends State{
 	}
 
 	@Override
-	protected void polling() {
+	protected void poll() {
 		// TODO Auto-generated method stub
 		appendRequest("rn");
 		
@@ -219,7 +224,7 @@ public class RoomState extends State{
 	}
 
 	@Override
-	protected void handleResponse(int start, int end, String return_message) {
+	public void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
 		
 		if(ParsingUtils.requestCheck(start, return_message, "rn") && return_message.charAt(start + 2) == 'p') {
@@ -247,7 +252,10 @@ public class RoomState extends State{
 				allreadytime.setText(Math.max(timevalue, 0));
 				
 				if(timevalue == -10) {
-					changeState(new GameState(this, rname, name));
+					next_state_inf = new String[2];
+					next_state_inf[0] = name;
+					next_state_inf[1] = rname;
+					changeState(new GameState());
 				}
 			}
 		}
@@ -256,8 +264,10 @@ public class RoomState extends State{
 			TextButton readybutton = stage.getRoot().findActor("readybutton");
 			readybutton.setText(isready ? "X Cancel" :"Ready");
 		}
-		else if (ParsingUtils.requestCheck(start, return_message, "rb") && return_message.charAt(start + 2) == 'p'){
-			changeState(new LobbyState(this, name));
+		else if (ParsingUtils.requestCheck(start, return_message, "rb") && return_message.charAt(start + 2) == 'p') {
+			next_state_inf = new String[1];
+			next_state_inf[0] = name;
+			changeState(new LobbyState());
 		}
 	}
 	

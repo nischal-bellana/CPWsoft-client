@@ -23,23 +23,28 @@ public class LobbyState extends State{
 	private Table scrtable;
 	private ButtonGroup<TextButton> bgrp;
 
-	public LobbyState(State prevst, String name) {
-		super(prevst);
-		
-		this.name = name;
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
 		createStage();
 		
-		message = new StringBuilder();
+		tcp_frame_message = new StringBuilder();
+	}
+	
+	
+	
+	@Override
+	public void create(State prevst) {
+		// TODO Auto-generated method stub
+		super.create(prevst);
+		
+		name = prevst.next_state_inf[0];
 	}
 
+
+
 	@Override
-	protected void createStage() {
+	public void createStage() {
 		// TODO Auto-generated method stub
 		Table table = new Table();
 		table.setBackground(skin.getDrawable("back"));
@@ -55,7 +60,7 @@ public class LobbyState extends State{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				changeState(new HomeState(LobbyState.this, name));
+				changeState(new HomeState());
 			}
 		});
 		topbar.add(back);
@@ -184,7 +189,7 @@ public class LobbyState extends State{
 	}
 	
 	@Override
-	protected void handleResponse(int start, int end, String return_message) {
+	public void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
 		
 		if(ParsingUtils.requestCheck(start, return_message, "co") && return_message.charAt(start + 2) == 'p') {
@@ -198,16 +203,22 @@ public class LobbyState extends State{
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "lj") && return_message.charAt(start + 2) == 'p') {
 			String roomname = return_message.substring(start + 3, end);
-			changeState(new RoomState(this, name, roomname));
+			next_state_inf = new String[2];
+			next_state_inf[0] = name;
+			next_state_inf[1] = roomname;
+			changeState(new RoomState());
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "lc") && return_message.charAt(start + 2) == 'p') {
 			String roomname = return_message.substring(start + 3, end);
-			changeState(new RoomState(this, name, roomname));
+			next_state_inf = new String[2];
+			next_state_inf[0] = name;
+			next_state_inf[1] = roomname;
+			changeState(new RoomState());
 		}
 	}
 
 	@Override
-	protected void polling() {
+	protected void poll() {
 		// TODO Auto-generated method stub
 		appendRequest("co");
 

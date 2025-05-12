@@ -1,10 +1,5 @@
 package com.game_states;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,164 +12,191 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.utils.ParsingUtils;
 
 public class State {
-	//fields
-	protected GameStateManager gsm;
 	
-	protected OrthographicCamera camera;
-    protected SpriteBatch batch;
-	protected Viewport mainvp;
+	GameStateManager gsm;
 	
-	protected Skin skin;
+	OrthographicCamera camera;
+    SpriteBatch batch;
+	Viewport mainvp;
 	
-	protected Stage stage;
+	Skin skin;
 	
-	protected ServerBridge serverbridge;
-	protected float poll_breaktime = 0;
-	protected StringBuilder message;
+	Stage stage;
 	
-	public State() {
-		
-	}
+	ServerBridge serverbridge;
+	float poll_elapsed_time = 0;
+	final float poll_period = 0.3f;
+	StringBuilder tcp_frame_message;
 	
-	public State(State prevst) {
-		this.gsm = prevst.gsm;
-		
-		this.camera = prevst.camera;
-	    this.batch = prevst.batch;
-		this.mainvp = prevst.mainvp;
-		
-		this.skin = prevst.skin;
-		
-		this.serverbridge = prevst.serverbridge;
-	}
-	
+	String[] next_state_inf;
+	float frame_delta_time = 0;
+	 
 	public void create() {
-		initCamera();
+		initCVB();
     	
 		skin = new Skin(Gdx.files.internal("packimgs//skin.json"));
         
         createStage();
-        
-        message = new StringBuilder();
+	}
+	
+	public void create(State prevst) {
+		this.gsm = prevst.gsm;
+		
+		this.camera = prevst.camera;
+		this.mainvp = prevst.mainvp;
+	    this.batch = prevst.batch;
+		
+		this.skin = prevst.skin;
+		
+		this.serverbridge = prevst.serverbridge;
+		
+		this.next_state_inf = prevst.next_state_inf;
 	}
 	
 	public void render() {
-		float delta = Gdx.graphics.getDeltaTime();
-		poll_breaktime += delta;
+		frame_delta_time = Gdx.graphics.getDeltaTime();
 		
 		preRender();
 		
 		batchRender();
 		
-		stageRender(delta);
+		stageRender();
 		
 		postRenderUpdate();
 		
 	}
 	
+	/** Disposes all disposable of the state. Use when closing app. */
 	public void dispose() {
-		if(gsm.next_st==null) {
-			batch.dispose();
-	        stage.dispose();
-	        skin.dispose();
-	        if(serverbridge != null && serverbridge.isConnected()) {
-	        	serverbridge.closeSocket();
-	        }
-	        return;
-		}
+		batch.dispose();
+	    stage.dispose();
+	    skin.dispose();
+	    if(serverbridge != null && serverbridge.isConnected()) {
+	        serverbridge.closeSocket();
+	    }
+	    
 		stage.dispose();
 	}
 	
+	/**Disposes only those that are not carried on by the next state. Use when changing states. */
+	public void disposeHalf() {
+		stage.dispose();
+	}
+	
+	/** Triggered when window is resized. {@link Viewport}s are updated. */
 	public void resize(int width,int height) {
 		mainvp.update(width, height);
 	}
 	
-	protected void createStage(){
-    	
+	/** Scene2D stage layout and behavior are configured here. */
+	public void createStage(){
     	
     }
     
-	protected void stageRender(float delta) {
-		stage.act(delta);
+	/** Stage elements rendering and updates*/
+	public void stageRender() {
+		stage.act(frame_delta_time);
         stage.draw();
 	}
     
-    protected void batchRender() {
+    public void batchRender() {
     	
     }
     
-    protected void preRender() {
+    public void preRender() {
     	ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+    	
         batch.setProjectionMatrix(camera.combined);
+        
+        /*Because we have set the projection matrix of the batch. */
         camera.update();
     }
     
-    protected void initStage(Table table) {
+    public void initStage(Table table) {
     	stage = new Stage(mainvp);
     	Gdx.input.setInputProcessor(stage);
     	table.setFillParent(true);
     	stage.addActor(table);
     }
 	
-    protected void initCamera() {
+    /**Initializes camera, viewports and batch. */
+    public void initCVB() {
     	camera = new OrthographicCamera();
     	camera.setToOrtho(false, 960, 540);
     	mainvp = new FitViewport(960, 540, camera);
         batch = new SpriteBatch();
     }
     
-    protected void postRenderUpdate() {
-		// TODO Auto-generated method stub
-    	
+    public void postRenderUpdate() {
+    	/* Return if there is no connection to server made. */
     	if(serverbridge == null) return;
     	
-		if(poll_breaktime > 0.3f) {
-			polling();
-			poll_breaktime = 0;
-		}
+		tryPolling();
 		
-		if(message.length() > 0) {
-			addMessage(message.toString());
+		tryTCPMessageDispatch();
+		
+		tryHandleReturnMessage();
+		
+	}
+	
+	public void appendRequest(String request) {
+		if(tcp_frame_message == null) tcp_frame_message = new StringBuilder();
+		
+		ParsingUtils.appendData(request, tcp_frame_message);
+	}
+	
+	public void handleResponse(int start, int end, String response) {
+		
+	}
+	
+	/** Poll requests if poll time period elapsed. */
+	public void tryPolling() {
+		poll_elapsed_time += frame_delta_time;
+		if(poll_elapsed_time <= poll_period) return;
+		
+		poll();
+		poll_elapsed_time = 0; 
+	}
+	
+	protected void poll() {
+		
+	}
+	
+	/**Send tcp message if there is atleast one request to be sent. */
+	public void tryTCPMessageDispatch() {
+		if(tcp_frame_message != null) {
+			addMessage(tcp_frame_message.toString());
+			tcp_frame_message = null;
+		}
+	}
+	
+	 private void addMessage(String message) {
+			if(serverbridge == null || !serverbridge.isConnected()) return;
 			
-			message = new StringBuilder();
+			serverbridge.addMessage(message);
+			
 		}
-		
+	
+	/**Handle return message if there is any. */
+	public void tryHandleReturnMessage() {
 		String return_message = serverbridge.pollReturnMessage();
+		if(return_message.length() == 0) return;
 		
-		if(return_message.length() > 0) {
-			for(int i = 0; i < return_message.length();) {
-				int start = ParsingUtils.getBeginIndex(i, return_message, '&');
-				int end = start + ParsingUtils.parseInt(i, start - 1, return_message);
-				
-				handleResponse(start, end, return_message);
-				
-				i = end;
-			}
+		handleReturnMessage(return_message);
+	}
+	
+	public void handleReturnMessage(String return_message) {
+		for(int i = 0; i < return_message.length();) {
+			int start = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end = start + ParsingUtils.parseInt(i, start - 1, return_message);
 			
+			handleResponse(start, end, return_message);
+			
+			i = end;
 		}
-		
-	}
-	
-	protected void appendRequest(String request) {
-		ParsingUtils.appendData(request, message);
-	}
-	
-	protected void handleResponse(int start, int end, String response) {
-		
-	}
-	
-	protected void polling() {
-		
 	}
     
-    private void addMessage(String message) {
-		if(serverbridge == null || !serverbridge.isConnected()) return;
-		
-		serverbridge.addMessage(message);
-		
-	}
-    
-    protected void changeState(State newstate) {
+    public void changeState(State newstate) {
     	gsm.next_st = newstate;
     	if(serverbridge != null) serverbridge.clearQueues();
     }

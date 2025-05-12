@@ -18,22 +18,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class FirstState extends State{
-	
-	private String name;
-	
-    FirstState(){
-    	super();
-    }
-    
-    FirstState(State prevst){
-    	super(prevst);
-		
-		if(serverbridge != null && serverbridge.isConnected())
-		serverbridge.closeSocket();
-    }
     
 	@Override
-    protected void createStage(){
+	public void createStage(){
     	Table table = new Table();
     	table.setBackground(skin.getDrawable("back"));
     	initStage(table);
@@ -78,7 +65,7 @@ public class FirstState extends State{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				changeState(new GameStateOffline(FirstState.this));
+				changeState(new GameStateOffline());
 			}
 			
 		});
@@ -98,14 +85,6 @@ public class FirstState extends State{
     	});
     	
     }
-	
-	@Override
-	protected void handleResponse(int start, int end, String return_message) {
-		// TODO Auto-generated method stub
-		if(end - start > 0 && return_message.charAt(start) == 'p') {
-			changeState(new HomeState(this, name));
-		}
-	}
 
 	public boolean validateUsername(String username) {
 		if(username.length() <= 5 || username.length() > 14 || Character.isDigit(username.charAt(0))) return false;
@@ -119,7 +98,7 @@ public class FirstState extends State{
 
 	private void connectServer(String name) {
     	try {  
-    		if(serverbridge != null && serverbridge.isConnected()) serverbridge.closeSocket();;
+    		if(serverbridge != null && serverbridge.isConnected()) serverbridge.closeSocket();
     		
     		TextField tf = stage.getRoot().findActor("serverip");
     		
@@ -133,13 +112,17 @@ public class FirstState extends State{
     		
     		if(!serverbridge.isConnected()) {
     			serverbridge.closeSocket();
+    			serverbridge = null;
     			System.out.println("Connection failed server socket is closed");
     			return;
     		}
-    		
-    		this.name = name;
+			
     		Thread serverbridgethread = new Thread(serverbridge);
     		serverbridgethread.start();
+    		
+    		next_state_inf = new String[1];
+			next_state_inf[0] = name;
+			changeState(new HomeState());
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

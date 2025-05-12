@@ -86,12 +86,6 @@ public class GameStateOffline extends State{
 	private final float matchtime = 300;
 	private final float turntime = 20;
 	
-	public GameStateOffline(State prevst){
-		
-		super(prevst);
-		
-	}
-	
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
@@ -106,6 +100,16 @@ public class GameStateOffline extends State{
 		createGameObjects();
 		getRegions();
 	}
+	
+	
+	
+	@Override
+	public void create(State prevst) {
+		// TODO Auto-generated method stub
+		super.create(prevst);
+	}
+
+
 
 	@Override
 	public void render() {
@@ -116,13 +120,13 @@ public class GameStateOffline extends State{
 	    
 	    batchRender();
 	    
-	    stageRender(delta);
+	    stageRender();
 	    
 	    doPhysicsStep(delta);
 	    
 	    gameUpdate(delta);
 	    if(shouldexit) {
-	    	changeState(new FirstState(this));
+	    	changeState(new FirstState());
 	    	return;
 	    }
 	    
@@ -390,16 +394,9 @@ public class GameStateOffline extends State{
 
 		if(currentclip.updateClip(delta)) currentclip = null;
 	}
-	
-	@Override
-	protected void stageRender(float delta) {
-		// TODO Auto-generated method stub
-		stage.act(delta);
-	    stage.draw();
-	}
 
 	@Override
-	protected void batchRender() {
+	public void batchRender() {
 		// TODO Auto-generated method stub
 		batch.begin();
 		
@@ -424,7 +421,7 @@ public class GameStateOffline extends State{
 	}
 
 	@Override
-	protected void preRender() {
+	public void preRender() {
 		// TODO Auto-generated method stub
 		ScreenUtils.clear(1, 1, 1, 1);
 		camera.update();

@@ -4,13 +4,9 @@ public class GameStateManager {
 	public State st;
 	public State next_st;
 	public GameStateManager() {
-		st = new FirstState();
+		st = new FirstState(); 
 		st.gsm = this;
 		st.create();
-	}
-	public GameStateManager(State st) {
-		this.st = st;
-		st.gsm = this;
 	}
 	
 	public void render() {
@@ -18,10 +14,10 @@ public class GameStateManager {
 			st.render();
 		}
 		else {
-			st.dispose();
+			st.disposeHalf();
+			next_st.create(st);
 			st = next_st;
 			next_st = null;
-			st.create();
 		}
 	}
 	public void dispose() {

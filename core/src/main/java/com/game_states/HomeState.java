@@ -24,27 +24,29 @@ import com.utils.ParsingUtils;
 
 public class HomeState extends State{
 	
-	private Label online;
 	private String name;
 	
-	HomeState(State prevst, String name){
-		super(prevst);
-		
-		this.name = name;
-		
-	}
-
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
 		createStage();
 		
-		message = new StringBuilder();
+		tcp_frame_message = new StringBuilder();
 		
+	}
+	
+	
+
+	@Override
+	public void create(State prevst) {
+		// TODO Auto-generated method stub
+		super.create(prevst);
+		
+		this.name = next_state_inf[0];
 	}
 
 	@Override
-	protected void createStage() {
+	public void createStage() {
 		// TODO Auto-generated method stub
 		Table table = new Table();
 		table.setBackground(skin.getDrawable("back"));
@@ -67,7 +69,8 @@ public class HomeState extends State{
 		Label nop = new Label("No of players online: ", skin);
 		table.add(nop).padLeft(300);
 		
-		Label oc =  online = new Label("1", skin);
+		Label oc =  new Label("1", skin);
+		oc.setName("onlinecount");
 		oc.setColor(0, 1, 0, 1);
 		table.add(oc);
 		
@@ -75,7 +78,7 @@ public class HomeState extends State{
 		table.add(username).padLeft(10);
 		
 		TextButton settings = new TextButton("Settings",skin);
-		table.add(settings).expandX().right();
+		table.add(settings).expandX().right(); 
 		table.row();
 		
 		TextButton playm = new TextButton("Play Online", skin);
@@ -92,27 +95,30 @@ public class HomeState extends State{
 	}
 
 	@Override
-	protected void polling() {
+	protected void poll() {
 		// TODO Auto-generated method stub
 		appendRequest("co");
 	}
 
 	@Override
-	protected void handleResponse(int start, int end, String return_message) {
+	public void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
 		
 		if(ParsingUtils.requestCheck(start, return_message, "co") && return_message.charAt(start + 2) == 'p') {
-			online.setText(ParsingUtils.parseInt(start + 3, end, return_message));
+			Label onlinecountlabel = (Label) stage.getRoot().findActor("onlinecount");
+			onlinecountlabel.setText(ParsingUtils.parseInt(start + 3, end, return_message));
 			return;
 		}
 		
 		if(ParsingUtils.requestCheck(start, return_message, "hb") && return_message.charAt(start + 2) == 'p') {
-			changeState(new FirstState(this));
+			changeState(new FirstState());
 			return;
 		}
 		
 		if(ParsingUtils.requestCheck(start, return_message, "ho") && return_message.charAt(start + 2) == 'p') {
-			changeState(new LobbyState(this, name));
+			next_state_inf = new String[1];
+			next_state_inf[0] = name;
+			changeState(new LobbyState());
 		}
 	}
 	
