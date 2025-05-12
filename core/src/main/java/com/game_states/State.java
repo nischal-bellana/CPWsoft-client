@@ -49,8 +49,6 @@ public class State {
 		this.skin = prevst.skin;
 		
 		this.serverbridge = prevst.serverbridge;
-		
-		this.next_state_inf = prevst.next_state_inf;
 	}
 	
 	public void render() {

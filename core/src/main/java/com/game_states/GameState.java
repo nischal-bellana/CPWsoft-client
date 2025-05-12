@@ -35,7 +35,7 @@ public class GameState extends State{
 	private AtlasRegion backregion;
 	
 	private String name;
-	private String rname;
+	private String room_name;
 			
 	private Array<Player> players;
 	private Player player;
@@ -59,47 +59,15 @@ public class GameState extends State{
 		super.create(prevst);
 		
 		name = prevst.next_state_inf[0];
-		rname = prevst.next_state_inf[1];
+		room_name = prevst.next_state_inf[1];
 		
 		atlas = new TextureAtlas("packimgs//atlaspack.atlas");
-		
-		inputs = new StringBuilder();
-		
-		tcp_frame_message = new StringBuilder();
 		
 		initUDPServerBridge();
 		
 		createStage();
 		createGameObjects();
 		getRegions();
-	}
-
-
-
-	@Override
-	public void render() {
-		// TODO Auto-generated method stub
-		super.render();
-		
-		 appendRequest("gb");
-		
-	    if(gsm.next_st != null) return;
-	    
-	    updateTurnMark();
-	    
-	    if(index == inputindex) {
-	    	inputUpdate();
-	    }
-	    
-	    if(index == inputindex && inputs.length() > 0) {  
-			udpbridgesender.addMessage(inputs.toString());
-			inputs = new StringBuilder();
-		}
-	    
-	    applyUDPBroadcast(udpbridgereceiver.getBroadcast());
-	    
-	    ground.updateDepthBuffer();
-	    
 	}
 
 	@Override
@@ -110,10 +78,22 @@ public class GameState extends State{
 		atlas.dispose();
 		ground.disposeShapeRenderer();
 		udpbridgesender.closeSocket();
-		System.out.println("Closed Sender");
 		udpbridgereceiver.closeSocket();
-		System.out.println("Closed Receiver");
 	}
+	
+	
+
+	@Override
+	public void disposeHalf() {
+		// TODO Auto-generated method stub
+		super.disposeHalf();
+		
+		atlas.dispose();
+		ground.disposeShapeRenderer();
+		udpbridgesender.closeSocket();
+		udpbridgereceiver.closeSocket();
+	}
+	
 
 	@Override
 	public void resize(int width, int height) {
@@ -187,24 +167,28 @@ public class GameState extends State{
 	
 	private void inputUpdate() {
 		
-		if(inputs.length() != 0) inputs = new StringBuilder();
-		
 		if(Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-			System.out.println("pressed up");
 //			playerbody.setLinearVelocity(0, 10);
+			if(inputs == null) inputs = new StringBuilder();
+			
 			inputs.append('w');
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.A)) {
 //			playerbody.applyForceToCenter(-3, 0, false);
+			if(inputs == null) inputs = new StringBuilder();
+			
 			inputs.append('a');
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.D)) {
 //			playerbody.applyForceToCenter(3, 0, false);
+			if(inputs == null) inputs = new StringBuilder();
+			
 			inputs.append('d');
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
 //			player.toggleWeapon();
-			System.out.println("pressed space");
+			if(inputs == null) inputs = new StringBuilder();
+			
 			inputs.append('c');
 		}
 		
@@ -218,6 +202,8 @@ public class GameState extends State{
 //			}
 //		}
 		if(player.getPowerLevel() != -1) {
+			if(inputs == null) inputs = new StringBuilder();
+			
 			if(Gdx.input.isTouched()) inputs.append('t');
 			
 			inputs.append(getPowerIndicatorAngle(player));
@@ -255,9 +241,35 @@ public class GameState extends State{
 	public void preRender() {
 		// TODO Auto-generated method stub
 		ScreenUtils.clear(1, 1, 1, 1f);
+		
 		camera.update();
         batch.setProjectionMatrix(camera.combined.scl(32));
 		
+	}
+
+	@Override
+	public void postRenderUpdate() {
+		// TODO Auto-generated method stub
+		super.postRenderUpdate();
+		
+		appendRequest("gb");
+		
+	    if(gsm.next_st != null) return;
+	    
+	    updateTurnMark();
+	    
+	    if(index == inputindex) {
+	    	inputUpdate();
+	    }
+	    
+	    if(index == inputindex && inputs != null) {  
+			udpbridgesender.addMessage(inputs.toString());
+			inputs = null;
+		}
+	    
+	    applyUDPBroadcast(udpbridgereceiver.getBroadcast());
+	    
+	    ground.updateDepthBuffer();
 	}
 
 	@Override
@@ -267,7 +279,7 @@ public class GameState extends State{
 		if(ParsingUtils.requestCheck(start, return_message, "gg") && return_message.charAt(start + 2) == 'f') {
 			next_state_inf = new String[2];
 			next_state_inf[0] = name;
-			next_state_inf[1] = rname;
+			next_state_inf[1] = room_name;
 			changeState(new RoomState());
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "gb") && return_message.charAt(start + 2) == 'p') {

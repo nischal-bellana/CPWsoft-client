@@ -31,7 +31,7 @@ public class HomeState extends State{
 		// TODO Auto-generated method stub
 		super.create(prevst);
 		
-		this.name = next_state_inf[0];
+		this.name = prevst.next_state_inf[0];
 		
 		createStage();
 	}
