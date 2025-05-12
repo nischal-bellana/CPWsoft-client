@@ -74,8 +74,6 @@ public class State {
 	    if(serverbridge != null && serverbridge.isConnected()) {
 	        serverbridge.closeSocket();
 	    }
-	    
-		stage.dispose();
 	}
 	
 	/**Disposes only those that are not carried on by the next state. Use when changing states. */
@@ -158,7 +156,7 @@ public class State {
 		poll_elapsed_time = 0; 
 	}
 	
-	protected void poll() {
+	public void poll() {
 		
 	}
 	

@@ -39,7 +39,7 @@ public class ServerBridge implements Runnable{
 				String message = messages.poll();
 				String return_message = sendMessage(message);
 				
-				if(just_cleared) continue; 
+				if(just_cleared) continue;
 				
 				return_messages.offer(return_message);
 			}

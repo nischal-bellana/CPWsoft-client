@@ -19,19 +19,7 @@ import com.utils.ParsingUtils;
 
 public class LobbyState extends State{
 	private String name;
-	private Label online;
-	private Table scrtable;
 	private ButtonGroup<TextButton> bgrp;
-
-	@Override
-	public void create() {
-		// TODO Auto-generated method stub
-		createStage();
-		
-		tcp_frame_message = new StringBuilder();
-	}
-	
-	
 	
 	@Override
 	public void create(State prevst) {
@@ -39,9 +27,9 @@ public class LobbyState extends State{
 		super.create(prevst);
 		
 		name = prevst.next_state_inf[0];
+		
+		createStage();
 	}
-
-
 
 	@Override
 	public void createStage() {
@@ -53,60 +41,62 @@ public class LobbyState extends State{
 		table.setDebug(false);
 		
 //		table.row().expandX();
-		Table topbar = new Table();
+		Table topbar_t = new Table();
 		
-		Button back = new Button(skin, "backbutton");
-		back.addListener(new ChangeListener() {
+		Button back_b = new Button(skin, "backbutton");
+		back_b.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
 				changeState(new HomeState());
 			}
 		});
-		topbar.add(back);
+		topbar_t.add(back_b);
 		
 		Label nop = new Label("No of players online: ", skin);
-		topbar.add(nop).padLeft(300);
+		topbar_t.add(nop).padLeft(300);
 		
-		Label oc =  online = new Label("1", skin);
-		oc.setColor(0, 1, 0, 1);
-		topbar.add(oc).left();
+		Label online_count_l = new Label("1", skin);
+		online_count_l.setName("onlinecount");
+		online_count_l.setColor(0, 1, 0, 1);
+		topbar_t.add(online_count_l).left();
 		
-		Label username = new Label("Username: " + name, skin);
-		topbar.add(username).padLeft(10);
+		Label l_username = new Label("Username: " + name, skin);
+		topbar_t.add(l_username).padLeft(10);
 		
-		table.add(topbar).expandX().left();
+		table.add(topbar_t).expandX().left();
 		table.row();
 		
-		scrtable = new Table();
-		scrtable.top().left();
+		Table scrollable_t = new Table();
+		scrollable_t.top().left();
+		scrollable_t.setName("scrollabletable");
 		bgrp = new ButtonGroup<>();
 		
-		ScrollPane scp = new ScrollPane(scrtable, skin);
-		table.add(scp).padTop(50).height(200).width(600).padBottom(50);
+		ScrollPane scrollpane_sp = new ScrollPane(scrollable_t, skin);
+		table.add(scrollpane_sp).padTop(50).height(200).width(600).padBottom(50);
 		table.row();
 		
-		Table bottombar = new Table();
+		Table bottombar_t = new Table();
 		
-		TextButton rnamesearch = new TextButton("Search By RoomID:", skin);
-		bottombar.add(rnamesearch).height(30).width(250);
+		TextButton room_search_tb = new TextButton("Search By RoomID:", skin);
+		bottombar_t.add(room_search_tb).height(30).width(250);
 		
-		TextField rname = new TextField("", skin);
-		bottombar.add(rname).width(200).height(20).colspan(2);
-		bottombar.row();
+		TextField room_filter_tf = new TextField("", skin);
+		bottombar_t.add(room_filter_tf).width(200).height(20).colspan(2);
+		bottombar_t.row();
 		
-		rnamesearch.addListener(new ChangeListener() {
+		room_search_tb.addListener(new ChangeListener() {
 
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				appendRequest("lf" + rname.getText());
+				appendRequest("lf" + room_filter_tf.getText());
 			}
 			
 		});
 		
-		TextButton join = new TextButton("Join", skin);
-		join.addListener(new ChangeListener() {
+		TextButton room_join_tb = new TextButton("Join", skin);
+		room_join_tb.addListener(new ChangeListener() {
 
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -122,7 +112,7 @@ public class LobbyState extends State{
 			}
 			
 		});
-		bottombar.add(join);
+		bottombar_t.add(room_join_tb);
 		TextButton createRoom = new TextButton("Create", skin);
 		createRoom.addListener(new ChangeListener() {
 
@@ -133,7 +123,7 @@ public class LobbyState extends State{
 			}
 			
 		});
-		bottombar.add(createRoom);
+		bottombar_t.add(createRoom);
 		
 		table.setTouchable(Touchable.enabled);
 		table.addListener(new ClickListener() {
@@ -149,17 +139,18 @@ public class LobbyState extends State{
 			}
     	});
 		
-		table.add(bottombar);
+		table.add(bottombar_t);
 	}
 	
-	protected void refreshRooms(int start, int end, String return_message) {
-		scrtable.clearChildren();
-		scrtable.add();
+	public void refreshRooms(int start, int end, String return_message) {
+		Table scrollable_t = stage.getRoot().findActor("scrollabletable");
+		scrollable_t.clearChildren();
+		scrollable_t.add();
 		Label roomshead = new Label("Room Name", skin, "head");
-		scrtable.add(roomshead).padLeft(10).padBottom(20).width(120).height(50);
+		scrollable_t.add(roomshead).padLeft(10).padBottom(20).width(120).height(50);
 		Label nopl = new Label("No of Players", skin, "head");
-		scrtable.add(nopl).padLeft(10).padBottom(20).width(150).height(50);
-		scrtable.row();
+		scrollable_t.add(nopl).padLeft(10).padBottom(20).width(150).height(50);
+		scrollable_t.row();
 		bgrp.clear();
 		bgrp.setMinCheckCount(0);
 		
@@ -173,15 +164,15 @@ public class LobbyState extends State{
 			TextButton button = new TextButton("", skin, "checkenable");
 			button.setName(return_message.substring(start1, end1));
 			bgrp.add(button);
-			scrtable.add(button).size(50).padBottom(20);
+			scrollable_t.add(button).size(50).padBottom(20);
 			
 			int start2 = ParsingUtils.getBeginIndex(start1, return_message, '&');
 			
 			Label label = new Label(return_message.substring(start1, start2 - 1), skin);
-			scrtable.add(label).padBottom(20);
+			scrollable_t.add(label).padBottom(20);
 			Label no = new Label(ParsingUtils.parseInt(start2, end1, return_message) +"/5", skin);
-			scrtable.add(no).padBottom(20);
-			scrtable.row();
+			scrollable_t.add(no).padBottom(20);
+			scrollable_t.row();
 			
 			i = end1;
 		}
@@ -193,7 +184,8 @@ public class LobbyState extends State{
 		// TODO Auto-generated method stub
 		
 		if(ParsingUtils.requestCheck(start, return_message, "co") && return_message.charAt(start + 2) == 'p') {
-			online.setText(ParsingUtils.parseInt(start + 3, end, return_message));
+			Label online_count_l = stage.getRoot().findActor("onlinecount");
+			online_count_l.setText(ParsingUtils.parseInt(start + 3, end, return_message));
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "lr") && return_message.charAt(start + 2) == 'p') {
 			refreshRooms(start + 3, end, return_message);
@@ -218,7 +210,7 @@ public class LobbyState extends State{
 	}
 
 	@Override
-	protected void poll() {
+	public void poll() {
 		// TODO Auto-generated method stub
 		appendRequest("co");
 

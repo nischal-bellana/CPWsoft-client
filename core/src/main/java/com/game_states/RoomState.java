@@ -207,7 +207,7 @@ public class RoomState extends State{
 	}
 
 	@Override
-	protected void poll() {
+	public void poll() {
 		// TODO Auto-generated method stub
 		appendRequest("rn");
 		

@@ -19,48 +19,59 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class FirstState extends State{
     
+	
+	
+	@Override
+	public void create(State prevst) {
+		// TODO Auto-generated method stub
+		super.create(prevst);
+		
+		createStage();
+	}
+
 	@Override
 	public void createStage(){
     	Table table = new Table();
     	table.setBackground(skin.getDrawable("back"));
     	initStage(table);
     	
-    	Label username = new Label("Username", skin);
+    	Label l_username = new Label("Username", skin);
     	table.row();
-    	table.add(username).padTop(18);
-    	TextField name = new TextField("",skin);
-    	table.row();
-    	table.add(name).height(18).padTop(18);
+    	table.add(l_username).padTop(18);
     	
-    	Button button = new Button(skin);
-    	button.addListener(new ChangeListener() {
+    	TextField name_tf = new TextField("",skin);
+    	table.row();
+    	table.add(name_tf).height(18).padTop(18);
+    	
+    	Button connect_b = new Button(skin);
+    	connect_b.addListener(new ChangeListener() {
 
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
 				System.out.println("Connecting...");
-				String usernametext = name.getText();
+				String usernametext = name_tf.getText();
 				usernametext = usernametext.trim();
 				if(validateUsername(usernametext)) connectServer(usernametext);
 			}
     		
     	});
     	table.row();
-    	table.add(button).center();
+    	table.add(connect_b).center();
     	
-    	Label label = new Label("Connect to Server",skin);
+    	Label l_connect = new Label("Connect to Server",skin);
     	table.row();
-    	table.add(label).center().padTop(18);
+    	table.add(l_connect).center().padTop(18);
     	
-    	TextField tf = new TextField("localhost",skin);
-    	tf.setName("serverip");
+    	TextField server_ip_tf = new TextField("localhost",skin);
+    	server_ip_tf.setName("serverip");
     	table.row();
-    	table.add(tf).height(18).padTop(18);
+    	table.add(server_ip_tf).height(18).padTop(18);
     	
-    	TextButton playo = new TextButton("Play Offline", skin);
+    	TextButton play_offline_tb = new TextButton("Play Offline", skin);
     	table.row();
-		table.add(playo).padTop(50);
-		playo.addListener(new ChangeListener() {
+		table.add(play_offline_tb).padTop(50);
+		play_offline_tb.addListener(new ChangeListener() {
 
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {

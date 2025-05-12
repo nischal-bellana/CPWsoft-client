@@ -22,7 +22,6 @@ public class GameStateManager {
 	}
 	public void dispose() {
 		st.dispose();
-		if(next_st!=null) next_st.dispose();
 	}
 	
 	public void resize(int width,int height) {
