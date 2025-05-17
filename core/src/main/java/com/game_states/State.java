@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.utils.ParsingUtils;
@@ -81,7 +82,7 @@ public class State {
 	
 	/** Triggered when window is resized. {@link Viewport}s are updated. */
 	public void resize(int width,int height) {
-		mainvp.update(width, height);
+		mainvp.update(width, height, true);
 	}
 	
 	/** Scene2D stage layout and behavior are configured here. */
@@ -119,7 +120,7 @@ public class State {
     public void initCVB() {
     	camera = new OrthographicCamera();
     	camera.setToOrtho(false, 960, 540);
-    	mainvp = new FitViewport(960, 540, camera);
+    	mainvp = new ExtendViewport(960, 540, camera);
         batch = new SpriteBatch();
     }
     

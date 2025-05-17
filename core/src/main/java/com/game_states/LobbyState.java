@@ -48,7 +48,8 @@ public class LobbyState extends State{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				changeState(new HomeState());
+				serverbridge.closeSocket();
+				changeState(new FirstState());
 			}
 		});
 		topbar_t.add(back_b);

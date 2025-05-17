@@ -133,7 +133,7 @@ public class FirstState extends State{
     		
     		next_state_inf = new String[1];
 			next_state_inf[0] = name;
-			changeState(new HomeState());
+			changeState(new LobbyState());
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
