@@ -147,7 +147,7 @@ public class RoomState extends State{
 			Label label = new Label(return_message.substring(start1, start2 - 1), skin);
 			userslist_t.add(label).padBottom(20);
 			Image statusimg = new Image();
-			statusimg.setDrawable(skin.getDrawable(return_message.charAt(start2) == 'p' ? "statuson" : "statusoff"));
+			statusimg.setDrawable(skin.getDrawable(return_message.charAt(start2) == 't' ? "statuson" : "statusoff"));
 			userslist_t.add(statusimg).padBottom(20);
 			userslist_t.row();
 			
@@ -205,10 +205,8 @@ public class RoomState extends State{
 		
 		appendRequest("ru");
 		
-		synchronized(this) {
-			if(isready) {
-				appendRequest("ra");
-			}
+		if(isready) {
+			appendRequest("rg");
 		}
 		
 	}
@@ -227,33 +225,32 @@ public class RoomState extends State{
 		else if(ParsingUtils.requestCheck(start, return_message, "ru") && return_message.charAt(start + 2) == 'p') {
 			refreshUsersList(start + 3, end, return_message);
 		}
-		else if(ParsingUtils.requestCheck(start, return_message, "ra")) {
+		else if(ParsingUtils.requestCheck(start, return_message, "rg")) {
 			Label allready_time_l = stage.getRoot().findActor("allreadytime");
 			
 			if(return_message.charAt(start + 2) == 'f') {
-				if(return_message.charAt(start + 3) == '1') {
-					isready = false;
-					TextButton readybutton = stage.getRoot().findActor("readybutton");
-					readybutton.setText("Ready");
+				Label allready_time = (Label)stage.getRoot().findActor("allreadytime");
+				if(return_message.charAt(start + 3) == '2') {
+					allready_time.setVisible(true);
+					allready_time.setText(return_message.substring(start + 4, end));
 				}
-				allready_time_l.setVisible(false);
-			} 
+				else {
+					allready_time.setVisible(false);
+				}
+			}
 			else {
-				allready_time_l.setVisible(true);
-				
-				int timevalue = ParsingUtils.parseInt(start + 3, end, return_message);
-				allready_time_l.setText(Math.max(timevalue, 0));
-				
-				if(timevalue == -10) {
-					next_state_inf = new String[2];
-					next_state_inf[0] = name;
-					next_state_inf[1] = room_name;
-					changeState(new GameState());
-				}
+				next_state_inf = new String[2];
+				next_state_inf[0] = name;
+				next_state_inf[1] = room_name;
+				changeState(new GameState());
 			}
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "rr")) {
 			isready = !isready;
+			if(!isready) {
+				Label allready_time = (Label)stage.getRoot().findActor("allreadytime");
+				allready_time.setVisible(false);
+			}
 			TextButton readybutton = stage.getRoot().findActor("readybutton");
 			readybutton.setText(isready ? "X Cancel" :"Ready");
 		}

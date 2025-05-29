@@ -91,7 +91,7 @@ public class LobbyState extends State{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				appendRequest("lf" + room_filter_tf.getText());
+				appendRequest("lr");
 			}
 			
 		});
@@ -114,6 +114,7 @@ public class LobbyState extends State{
 			
 		});
 		bottombar_t.add(room_join_tb);
+		
 		TextButton createRoom = new TextButton("Create", skin);
 		createRoom.addListener(new ChangeListener() {
 
@@ -189,9 +190,6 @@ public class LobbyState extends State{
 			online_count_l.setText(ParsingUtils.parseInt(start + 3, end, return_message));
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "lr") && return_message.charAt(start + 2) == 'p') {
-			refreshRooms(start + 3, end, return_message);
-		}
-		else if(ParsingUtils.requestCheck(start, return_message, "lf") && return_message.charAt(start + 2) == 'p') {
 			refreshRooms(start + 3, end, return_message);
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "lj") && return_message.charAt(start + 2) == 'p') {

@@ -130,23 +130,27 @@ public class GameState extends State{
 		
 		serverbridge.addMessage("2&gn");
 		
-		String return_message = forceResponse();
+		String return_message = forceResponse(); //23&gnp
 		int start = ParsingUtils.getBeginIndex(0, return_message, '&');
 		start += 3;
-		int end = ParsingUtils.getBeginIndex(start, return_message, '&');
 		
-		index = ParsingUtils.parseInt(start, end - 1, return_message);
-		start = end;
 		
+		int iter_index = 0;
 		for(int i = start; i < return_message.length();) {
-			start = ParsingUtils.getBeginIndex(i, return_message, '&');
-			end = start + ParsingUtils.parseInt(i, start - 1, return_message);
+			int start2 = ParsingUtils.getBeginIndex(i, return_message, '&');
+			int end2 = start2 + ParsingUtils.parseInt(i, start2 - 1, return_message);
 			
-			Player player = new Player(stage, skin, return_message.substring(start, end), mainvp, atlas);
+			String player_name = return_message.substring(start2, end2);
 			
+			Player player = new Player(stage, skin, player_name, mainvp, atlas);
 			players.add(player);
 			
-			i = end;
+			if(player_name.equals(name)) {
+				index = iter_index;
+			}
+			
+			i = end2;
+			iter_index++;
 		}
 		
 		player = players.get(index);
@@ -276,7 +280,7 @@ public class GameState extends State{
 	public void handleResponse(int start, int end, String return_message) {
 		// TODO Auto-generated method stub
 		
-		if(ParsingUtils.requestCheck(start, return_message, "gg") && return_message.charAt(start + 2) == 'f') {
+		if(ParsingUtils.requestCheck(start, return_message, "gg") && return_message.charAt(start + 2) == 'p') {
 			next_state_inf = new String[2];
 			next_state_inf[0] = name;
 			next_state_inf[1] = room_name;
