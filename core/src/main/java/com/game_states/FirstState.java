@@ -43,7 +43,7 @@ public class FirstState extends State{
     	table.row();
     	table.add(name_tf).height(18).padTop(18);
 
-    	Button connect_b = new Button(skin);
+    	Button connect_b = new Button(skin, "rightbutton");
     	connect_b.addListener(new ChangeListener() {
 
 			@Override
@@ -54,10 +54,9 @@ public class FirstState extends State{
 				usernametext = usernametext.trim();
 				if(validateUsername(usernametext)) connectServer(usernametext);
 			}
-
     	});
-    	table.row();
-    	table.add(connect_b).center();
+
+    	table.add(connect_b).width(24).height(24).padTop(18);
 
         table.addListener(new InputListener(){
             @Override
@@ -72,9 +71,9 @@ public class FirstState extends State{
             }
         });
 
-    	Label l_connect = new Label("Connect to Server",skin);
+    	Label l_server = new Label("Server:",skin);
     	table.row();
-    	table.add(l_connect).center().padTop(18);
+    	table.add(l_server).center().padTop(18);
 
     	TextField server_ip_tf = new TextField("localhost",skin);
     	server_ip_tf.setName("serverip");
