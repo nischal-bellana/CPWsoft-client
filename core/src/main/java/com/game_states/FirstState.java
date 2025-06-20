@@ -82,7 +82,7 @@ public class FirstState extends State{
 
     	TextButton play_offline_tb = new TextButton("Play Offline", skin);
     	table.row();
-		table.add(play_offline_tb).padTop(50);
+		table.add(play_offline_tb).padTop(50).height(50);
 		play_offline_tb.addListener(new ChangeListener() {
 
 			@Override

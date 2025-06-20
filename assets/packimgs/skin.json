@@ -20,6 +20,12 @@
 	}
 },
 "com.badlogic.gdx.graphics.Color": {
+	"black": {
+		"r": 0.02745098,
+		"g": 0.023529412,
+		"b": 0.11235955,
+		"a": 1
+	},
 	"gray": {
 		"r": 0.75686276,
 		"g": 0.7764706,
@@ -98,15 +104,14 @@
 },
 "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
 	"default": {
-		"font": "swanseabold",
-		"fontColor": "lightblue",
+		"font": "swansea",
+		"fontColor": "black",
 		"up": "textbutton",
-		"down": "textbuttondown",
 		"over": "textbuttonover"
 	},
 	"checkenable": {
-		"font": "swanseabold",
-		"fontColor": "lightblue",
+		"font": "swansea",
+		"fontColor": "black",
 		"up": "textbutton",
 		"down": "textbuttondown",
 		"over": "textbuttonover",
