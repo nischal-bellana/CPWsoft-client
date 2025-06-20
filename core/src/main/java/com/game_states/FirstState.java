@@ -18,7 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-public class FirstState extends State{
+public class FirstState extends State {
 
 
 	@Override
@@ -40,6 +40,7 @@ public class FirstState extends State{
     	table.add(l_username).padTop(18);
 
     	TextField name_tf = new TextField("",skin);
+        name_tf.setName("name_tf");
     	table.row();
     	table.add(name_tf).height(18).padTop(18);
 
@@ -49,10 +50,7 @@ public class FirstState extends State{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				System.out.println("Connecting...");
-				String usernametext = name_tf.getText();
-				usernametext = usernametext.trim();
-				if(validateUsername(usernametext)) connectServer(usernametext);
+				connectServer();
 			}
     	});
 
@@ -62,10 +60,7 @@ public class FirstState extends State{
             @Override
             public boolean keyTyped(InputEvent event, char character) {
                 if(character == '\n'){
-                    System.out.println("Connecting...");
-                    String usernametext = name_tf.getText();
-                    usernametext = usernametext.trim();
-                    if(validateUsername(usernametext)) connectServer(usernametext);
+                    connectServer();
                 }
                 return true;
             }
@@ -119,7 +114,12 @@ public class FirstState extends State{
 		return true;
 	}
 
-	private void connectServer(String name) {
+	public void connectServer() {
+        System.out.println("Connecting...");
+        TextField name_tf = stage.getRoot().findActor("name_tf");
+        String name = name_tf.getText().trim();
+        if(!validateUsername(name)) return;
+
     	try {
     		if(serverbridge != null && serverbridge.isConnected()) serverbridge.closeSocket();
 
@@ -152,5 +152,7 @@ public class FirstState extends State{
 			System.out.println("Connection failed");
 		}
     }
+
+
 
 }
