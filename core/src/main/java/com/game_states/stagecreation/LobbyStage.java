@@ -103,4 +103,20 @@ public class LobbyStage {
         table.add(bottombar_t);
     }
 
+    public static void resetScrollTable(LobbyState state){
+        Table scrollable_t = state.stage.getRoot().findActor("scrollabletable");
+        scrollable_t.clearChildren();
+
+        Table headrow_t = new Table();
+        scrollable_t.add(headrow_t).expandX().height(50).width(550);
+        Label l_room_name = new Label("Room Name", state.skin);
+        headrow_t.add(l_room_name).expandX().left();
+        Label l_occupied = new Label("Occupied", state.skin);
+        headrow_t.add(l_occupied).expandX().right();
+        scrollable_t.row();
+
+        state.bgrp.clear();
+        state.bgrp.setMinCheckCount(0);
+    }
+
 }

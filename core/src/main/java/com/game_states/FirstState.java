@@ -34,6 +34,19 @@ public class FirstState extends State {
     	Table table = new Table();
     	table.setBackground(skin.getDrawable("back"));
     	initStage(table);
+        table.setTouchable(Touchable.enabled);
+        table.addListener(new ClickListener() {
+
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO Auto-generated method stub
+                if(stage.getKeyboardFocus() == null) return;
+
+                if(event.getTarget()!= stage.getKeyboardFocus()) {
+                    stage.unfocus(stage.getKeyboardFocus());
+                }
+            }
+        });
 
     	Label l_username = new Label("Username", skin);
     	table.row();
@@ -87,20 +100,6 @@ public class FirstState extends State {
 			}
 
 		});
-
-    	table.setTouchable(Touchable.enabled);
-    	table.addListener(new ClickListener() {
-
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				// TODO Auto-generated method stub
-				if(stage.getKeyboardFocus() == null) return;
-
-				if(event.getTarget()!= stage.getKeyboardFocus()) {
-					stage.unfocus(stage.getKeyboardFocus());
-				}
-			}
-    	});
 
     }
 

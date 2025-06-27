@@ -84,16 +84,7 @@ public class LobbyState extends State {
     }
 
 	public void refreshRooms(int start, int end, String return_message) {
-		Table scrollable_t = stage.getRoot().findActor("scrollabletable");
-		scrollable_t.clearChildren();
-		scrollable_t.add();
-		Label roomshead = new Label("Room Name", skin, "head");
-		scrollable_t.add(roomshead).padLeft(10).padBottom(20).width(120).height(50);
-		Label nopl = new Label("No of Players", skin, "head");
-		scrollable_t.add(nopl).padLeft(10).padBottom(20).width(150).height(50);
-		scrollable_t.row();
-		bgrp.clear();
-		bgrp.setMinCheckCount(0);
+        LobbyStage.resetScrollTable(this);
 
 		if(end - start == 0) return;
 
@@ -102,18 +93,11 @@ public class LobbyState extends State {
 			int start1 = ParsingUtils.getBeginIndex(i, return_message, '&');
 			int end1 = start1 + ParsingUtils.parseInt(i, start1 - 1 , return_message);
 
-			TextButton button = new TextButton("", skin, "checkenable");
-			button.setName(return_message.substring(start1, end1));
-			bgrp.add(button);
-			scrollable_t.add(button).size(50).padBottom(20);
+            int start2 = ParsingUtils.getBeginIndex(start1, return_message, '&');
+            String room_name = return_message.substring(start1, start2 - 1);
+            int fill_count = ParsingUtils.parseInt(start2, end1, return_message);
 
-			int start2 = ParsingUtils.getBeginIndex(start1, return_message, '&');
-
-			Label label = new Label(return_message.substring(start1, start2 - 1), skin);
-			scrollable_t.add(label).padBottom(20);
-			Label no = new Label(ParsingUtils.parseInt(start2, end1, return_message) +"/5", skin);
-			scrollable_t.add(no).padBottom(20);
-			scrollable_t.row();
+            addRoomData(room_name, fill_count);
 
 			i = end1;
 		}
@@ -158,6 +142,7 @@ public class LobbyState extends State {
     public void addRoomData(String room_name, int fill_count) {
         Table scrollable_t = stage.getRoot().findActor("scrollabletable");
         Button newbutton = new Button(skin, "Empty");
+        newbutton.setName(room_name + "&" + fill_count);
 
         Label room_name_l = new Label(room_name, skin);
         Label fill_count_l = new Label(fill_count + "/5", skin);

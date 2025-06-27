@@ -6,7 +6,7 @@ public class GameStateManager {
 	public State st;
 	public State next_st;
 	public GameStateManager() {
-		st = new FirstStateMock();
+		st = new FirstState();
 		st.gsm = this;
 		st.create();
 	}
