@@ -1,7 +1,9 @@
 package com.game_states;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -16,7 +18,7 @@ import com.utils.ParsingUtils;
 
 public class LobbyState extends State {
 	public String name;
-	public ButtonGroup<TextButton> bgrp;
+	public ButtonGroup<Button> bgrp;
 
 	@Override
 	public void create(State prevst) {
@@ -68,15 +70,22 @@ public class LobbyState extends State {
 		scrollable_t.top().left();
 		scrollable_t.setName("scrollabletable");
 		bgrp = new ButtonGroup<>();
-
+        bgrp.setMinCheckCount(0);
 		ScrollPane scrollpane_sp = new ScrollPane(scrollable_t, skin);
 		table.add(scrollpane_sp).padTop(50).height(200).width(600).padBottom(50);
 		table.row();
+        Table headrow_t = new Table();
+        scrollable_t.add(headrow_t).expandX().height(50).width(550);
+        Label l_room_name = new Label("Room Name", skin);
+        headrow_t.add(l_room_name).expandX().left();
+        Label l_occupied = new Label("Occupied", skin);
+        headrow_t.add(l_occupied).expandX().right();
+        scrollable_t.row();
 
 		Table bottombar_t = new Table();
 
 		TextButton room_search_tb = new TextButton("Search By RoomID:", skin);
-		bottombar_t.add(room_search_tb).height(30).width(250);
+		bottombar_t.add(room_search_tb).height(40).width(200);
 
 		TextField room_filter_tf = new TextField("", skin);
 		bottombar_t.add(room_filter_tf).width(200).height(20).colspan(2);
@@ -102,7 +111,7 @@ public class LobbyState extends State {
 			}
 
 		});
-		bottombar_t.add(room_join_tb);
+		bottombar_t.add(room_join_tb).height(40);
 
 		TextButton room_create_tb = new TextButton("Create", skin);
 		room_create_tb.addListener(new ChangeListener() {
@@ -114,7 +123,7 @@ public class LobbyState extends State {
 			}
 
 		});
-		bottombar_t.add(room_create_tb);
+		bottombar_t.add(room_create_tb).height(40);
 
 		table.setTouchable(Touchable.enabled);
 		table.addListener(new ClickListener() {
@@ -229,6 +238,20 @@ public class LobbyState extends State {
 		appendRequest("lr");
 	}
 
+    public void addRoomData(String room_name, int fill_count) {
+        Table scrollable_t = stage.getRoot().findActor("scrollabletable");
+        Button newbutton = new Button(skin, "Empty");
 
+        Label room_name_l = new Label(room_name, skin);
+        Label fill_count_l = new Label(fill_count + "/5", skin);
+
+        newbutton.add(room_name_l).expandX().left();
+        newbutton.add(fill_count_l).expandX().right();
+
+        scrollable_t.add(newbutton).height(40).expandX().width(550);
+        scrollable_t.row();
+
+        bgrp.add(newbutton);
+    }
 
 }

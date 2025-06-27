@@ -8,6 +8,8 @@ back
   rotate: false
   xy: 133, 217
   size: 128, 128
+  split: 14, 12, 14, 14
+  pad: 14, 14, 14, 14
   orig: 128, 128
   offset: 0, 0
   index: -1
@@ -222,8 +224,7 @@ textfieldback
   rotate: false
   xy: 263, 168
   size: 82, 75
-  split: 0, 0, 0, 0
-  pad: 10, 10, 0, 2
+  split: 14, 14, 14, 14
   orig: 82, 75
   offset: 0, 0
   index: -1

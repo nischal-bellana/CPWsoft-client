@@ -75,6 +75,12 @@
 		"up": "backbutton",
 		"down": "backbuttondown",
 		"over": "backbuttonover"
+	},
+	"Empty": {
+		"up": "textfieldback",
+		"down": "back",
+		"over": "back",
+		"checked": "back"
 	}
 },
 "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
@@ -93,8 +99,7 @@
 },
 "com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle": {
 	"default-horizontal": {
-		"background": "scrollpaneback",
-		"knobBefore": "back"
+		"background": "scrollpaneback"
 	}
 },
 "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle": {
