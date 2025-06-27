@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.game_states.stagecreation.LobbyStage;
 import com.utils.ParsingUtils;
 
 public class LobbyState extends State {
@@ -37,109 +38,25 @@ public class LobbyState extends State {
 		table.setBackground(skin.getDrawable("back"));
 		initStage(table);
 		table.top().left();
-		table.setDebug(false);
+        table.setTouchable(Touchable.enabled);
+        table.addListener(new ClickListener() {
 
-//		table.row().expandX();
-		Table topbar_t = new Table();
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO Auto-generated method stub
+                if(stage.getKeyboardFocus() == null) return;
 
-		Button back_b = new Button(skin, "backbutton");
-		back_b.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				goBack();
-			}
-		});
-		topbar_t.add(back_b);
+                if(event.getTarget()!= stage.getKeyboardFocus()) {
+                    stage.unfocus(stage.getKeyboardFocus());
+                }
+            }
+        });
 
-		Label nop = new Label("No of players online: ", skin);
-		topbar_t.add(nop).padLeft(300);
+        LobbyStage.createTopBar(table, this);
 
-		Label online_count_l = new Label("1", skin);
-		online_count_l.setName("onlinecount");
-		online_count_l.setColor(0, 1, 0, 1);
-		topbar_t.add(online_count_l).left();
+		LobbyStage.createRoomsDataTable(table, this);
 
-		Label l_username = new Label("Username: " + name, skin);
-		topbar_t.add(l_username).padLeft(10);
-
-		table.add(topbar_t).expandX().left();
-		table.row();
-
-		Table scrollable_t = new Table();
-		scrollable_t.top().left();
-		scrollable_t.setName("scrollabletable");
-		bgrp = new ButtonGroup<>();
-        bgrp.setMinCheckCount(0);
-		ScrollPane scrollpane_sp = new ScrollPane(scrollable_t, skin);
-		table.add(scrollpane_sp).padTop(50).height(200).width(600).padBottom(50);
-		table.row();
-        Table headrow_t = new Table();
-        scrollable_t.add(headrow_t).expandX().height(50).width(550);
-        Label l_room_name = new Label("Room Name", skin);
-        headrow_t.add(l_room_name).expandX().left();
-        Label l_occupied = new Label("Occupied", skin);
-        headrow_t.add(l_occupied).expandX().right();
-        scrollable_t.row();
-
-		Table bottombar_t = new Table();
-
-		TextButton room_search_tb = new TextButton("Search By RoomID:", skin);
-		bottombar_t.add(room_search_tb).height(40).width(200);
-
-		TextField room_filter_tf = new TextField("", skin);
-		bottombar_t.add(room_filter_tf).width(200).height(20).colspan(2);
-		bottombar_t.row();
-
-		room_search_tb.addListener(new ChangeListener() {
-
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				searchRoom();
-			}
-
-		});
-
-		TextButton room_join_tb = new TextButton("Join", skin);
-		room_join_tb.addListener(new ChangeListener() {
-
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				joinRoom();
-			}
-
-		});
-		bottombar_t.add(room_join_tb).height(40);
-
-		TextButton room_create_tb = new TextButton("Create", skin);
-		room_create_tb.addListener(new ChangeListener() {
-
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				createRoom();
-			}
-
-		});
-		bottombar_t.add(room_create_tb).height(40);
-
-		table.setTouchable(Touchable.enabled);
-		table.addListener(new ClickListener() {
-
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				// TODO Auto-generated method stub
-				if(stage.getKeyboardFocus() == null) return;
-
-				if(event.getTarget()!= stage.getKeyboardFocus()) {
-					stage.unfocus(stage.getKeyboardFocus());
-				}
-			}
-    	});
-
-		table.add(bottombar_t);
+        LobbyStage.createBottomBar(table, this);
 	}
 
     public void goBack(){
