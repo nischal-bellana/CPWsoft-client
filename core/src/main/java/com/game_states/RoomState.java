@@ -11,14 +11,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.game_states.stagecreation.RoomStage;
 import com.utils.ParsingUtils;
 
 public class RoomState extends State {
-	String name;
-	String room_name;
-	int chatIndex = 0;
-	String chatrequest = "rh0";
-	boolean isready = false;
+	public String name;
+	public String room_name;
+	public int chatIndex = 0;
+	public String chatrequest = "rh0";
+	public boolean isready = false;
 
 	@Override
 	public void create(State prevst) {
@@ -44,88 +45,13 @@ public class RoomState extends State {
 
 //		table.row().expandX();
 
-		Table topbar_t = new Table();
-		table.add(topbar_t).colspan(2).left();
+        RoomStage.createTopBar(table, this);
 
-		Button back_b = new Button(skin, "backbutton");
-		back_b.addListener(new ChangeListener() {
+		RoomStage.createChatArea(table, this);
 
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				appendRequest("rb");
-			}
+        RoomStage.createUsersList(table, this);
 
-		});
-		topbar_t.add(back_b).left();
-
-		Label l_nopr = new Label("No of players in the Room: ", skin);
-		topbar_t.add(l_nopr).padLeft(300);
-
-		Label online_count_l = new Label("1", skin);
-		online_count_l.setName("onlinecount");
-		online_count_l.setColor(0, 1, 0, 1);
-		topbar_t.add(online_count_l);
-
-		Label room_name_l = new Label("Room Name: " + room_name, skin);
-		topbar_t.add(room_name_l).padLeft(10);
-
-		Table chatarea_t = new Table();
-		chatarea_t.top().left();
-		chatarea_t.setName("chatarea");
-
-		ScrollPane scrollpane_left_sp = new ScrollPane(chatarea_t, skin);
-		table.row();
-		table.add(scrollpane_left_sp).width(400).left().height(300).padLeft(20).expandX().colspan(2);
-
-		Table userslist_t = new Table();
-		userslist_t.top();
-		userslist_t.setDebug(false);
-		userslist_t.setName("userslist");
-
-		ScrollPane scrollpane_right_sp = new ScrollPane(userslist_t, skin);
-		table.add(scrollpane_right_sp).height(300).width(200).padRight(20).expandX().right();
-
-		table.row();
-		TextField chatfield_tf = new TextField("", skin);
-		table.add(chatfield_tf).fillX().padLeft(20).height(30);
-
-		TextButton send_tb = new TextButton("Send", skin);
-		send_tb.addListener(new ChangeListener() {
-
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				String content = chatfield_tf.getText();
-				if(content.equals("") || content.contains("{") || content.contains("}")) return;
-
-				appendRequest("rm" + content);
-			}
-
-		});
-		table.add(send_tb).left().height(50).width(100);
-
-		table.row();
-		table.add();
-		table.add();
-		TextButton ready_tb = new TextButton("Ready", skin);
-		ready_tb.addListener(new ChangeListener() {
-
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				appendRequest("rr");
-			}
-
-		});
-		ready_tb.setName("readybutton");
-		table.add(ready_tb).height(50).width(100).right();
-
-		Label allready_time_l = new Label("30", skin);
-		allready_time_l.setVisible(false);
-		allready_time_l.setName("allreadytime");
-		table.row();
-		table.add(allready_time_l).right().colspan(3).height(50).width(50);
+        RoomStage.createLowerComps(table, this);
 	}
 
 	protected void refreshUsersList(int start, int end, String return_message) {
@@ -254,10 +180,25 @@ public class RoomState extends State {
 			readybutton.setText(isready ? "X Cancel" :"Ready");
 		}
 		else if (ParsingUtils.requestCheck(start, return_message, "rb") && return_message.charAt(start + 2) == 'p') {
-			next_state_inf = new String[1];
-			next_state_inf[0] = name;
-			changeState(new LobbyState());
+			goBack();
 		}
 	}
+
+    public void sendMessage(){
+        TextField chatfield_tf = stage.getRoot().findActor("chatfield_tf");
+
+        String content = chatfield_tf.getText();
+
+        if(content.equals("") || content.contains("{") || content.contains("}")) return;
+
+        chatfield_tf.setText("");
+        appendRequest("rm" + content);
+    }
+
+    public void goBack(){
+        next_state_inf = new String[1];
+        next_state_inf[0] = name;
+        changeState(new LobbyState());
+    }
 
 }
