@@ -3,66 +3,6 @@ atlasData: {
 	atlasCurrent: true
 	drawables: [
 		{
-			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/backbutton.png
-			bgColor: {
-				r: 1
-				g: 1
-				b: 1
-				a: 1
-			}
-			tint: null
-			tintName: null
-			name: backbutton
-			tiled: false
-			minWidth: -1
-			minHeight: -1
-			customized: false
-			tenPatchData: null
-			tvgData: null
-			type: TEXTURE
-			hidden: false
-		}
-		{
-			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/backbuttondown.png
-			bgColor: {
-				r: 1
-				g: 1
-				b: 1
-				a: 1
-			}
-			tint: null
-			tintName: null
-			name: backbuttondown
-			tiled: false
-			minWidth: -1
-			minHeight: -1
-			customized: false
-			tenPatchData: null
-			tvgData: null
-			type: TEXTURE
-			hidden: false
-		}
-		{
-			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/backbuttonover.png
-			bgColor: {
-				r: 1
-				g: 1
-				b: 1
-				a: 1
-			}
-			tint: null
-			tintName: null
-			name: backbuttonover
-			tiled: false
-			minWidth: -1
-			minHeight: -1
-			customized: false
-			tenPatchData: null
-			tvgData: null
-			type: TEXTURE
-			hidden: false
-		}
-		{
 			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/downbutton.png
 			bgColor: {
 				r: 1
@@ -573,6 +513,46 @@ atlasData: {
 			tint: null
 			tintName: null
 			name: textfieldback
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			tvgData: null
+			type: NINE_PATCH
+			hidden: false
+		}
+		{
+			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/backbutton.9.png
+			bgColor: {
+				r: 1
+				g: 1
+				b: 1
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: backbutton
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			tvgData: null
+			type: NINE_PATCH
+			hidden: false
+		}
+		{
+			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/backbuttonover.9.png
+			bgColor: {
+				r: 1
+				g: 1
+				b: 1
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: backbuttonover
 			tiled: false
 			minWidth: -1
 			minHeight: -1
@@ -1553,7 +1533,7 @@ jsonData: {
 						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable
 						name: down
 						optional: true
-						value: backbuttondown
+						value: backbuttonover
 					}
 					over: {
 						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable

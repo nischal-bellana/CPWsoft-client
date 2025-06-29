@@ -1,8 +1,11 @@
 package com.game_states.stagecreation;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.game_states.RoomState;
 
 public class RoomStage {
@@ -20,7 +23,7 @@ public class RoomStage {
             }
 
         });
-        topbar_t.add(back_b).left();
+        topbar_t.add(back_b).left().width(50).height(50);
 
         Label l_nopr = new Label("No of players in the Room: ", state.skin);
         topbar_t.add(l_nopr).padLeft(300);
@@ -59,6 +62,25 @@ public class RoomStage {
     public static void createLowerComps(Table table, RoomState state){
         TextField chatfield_tf = new TextField("", state.skin);
         chatfield_tf.setName("chatfield_tf");
+        chatfield_tf.addListener(new InputListener(){
+            @Override
+            public boolean keyTyped(InputEvent event, char character) {
+
+                if(state.stage.getKeyboardFocus() == chatfield_tf && character == '\n'){
+                    state.sendMessage();
+                }
+                return true;
+            }
+        });
+        table.addListener(new InputListener(){
+            @Override
+            public boolean keyTyped(InputEvent event, char character) {
+                if(character == '\n'){
+                    state.stage.setKeyboardFocus(event.getTarget() == chatfield_tf ? table : chatfield_tf);
+                }
+                return true;
+            }
+        });
         table.add(chatfield_tf).fillX().padLeft(20).height(30);
 
         TextButton send_tb = new TextButton("Send", state.skin);
@@ -82,7 +104,7 @@ public class RoomStage {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // TODO Auto-generated method stub
-                state.appendRequest("rr");
+                state.readyForBattle();
             }
 
         });

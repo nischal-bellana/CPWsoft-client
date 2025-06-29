@@ -18,7 +18,7 @@ public class LobbyStage {
                 state.goBack();
             }
         });
-        topbar_t.add(back_b);
+        topbar_t.add(back_b).width(50).height(50);
 
         Label nop = new Label("No of players online: ", state.skin);
         topbar_t.add(nop).padLeft(300);

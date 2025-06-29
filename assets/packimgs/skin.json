@@ -73,7 +73,7 @@
 	},
 	"backbutton": {
 		"up": "backbutton",
-		"down": "backbuttondown",
+		"down": "backbuttonover",
 		"over": "backbuttonover"
 	},
 	"Empty": {

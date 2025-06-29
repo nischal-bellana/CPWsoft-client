@@ -1,12 +1,12 @@
 
 skin.png
-size: 512, 512
+size: 1024, 1024
 format: RGBA8888
 filter: Linear, Linear
 repeat: none
 back
   rotate: false
-  xy: 133, 217
+  xy: 133, 762
   size: 128, 128
   split: 14, 12, 14, 14
   pad: 14, 14, 14, 14
@@ -15,49 +15,44 @@ back
   index: -1
 backbutton
   rotate: false
-  xy: 347, 187
-  size: 58, 56
-  orig: 58, 56
-  offset: 0, 0
-  index: -1
-backbuttondown
-  rotate: false
-  xy: 407, 187
-  size: 58, 56
-  orig: 58, 56
+  xy: 1, 402
+  size: 100, 100
+  split: 0, 0, 0, 0
+  orig: 100, 100
   offset: 0, 0
   index: -1
 backbuttonover
   rotate: false
-  xy: 257, 110
-  size: 58, 56
-  orig: 58, 56
+  xy: 365, 790
+  size: 100, 100
+  split: 0, 0, 0, 0
+  orig: 100, 100
   offset: 0, 0
   index: -1
 downbutton
   rotate: false
-  xy: 317, 114
+  xy: 637, 937
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 downbuttondown
   rotate: false
-  xy: 371, 133
+  xy: 1, 271
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 downbuttonover
   rotate: false
-  xy: 425, 133
+  xy: 691, 937
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 endcardback
   rotate: false
-  xy: 132, 90
+  xy: 1, 504
   size: 123, 125
   split: 16, 16, 18, 13
   pad: 17, 15, 21, 13
@@ -66,7 +61,7 @@ endcardback
   index: -1
 headback
   rotate: false
-  xy: 1, 86
+  xy: 1, 631
   size: 129, 129
   split: 10, 11, 10, 11
   pad: 13, 14, 12, 12
@@ -75,56 +70,56 @@ headback
   index: -1
 leftbutton
   rotate: false
-  xy: 257, 56
+  xy: 1, 217
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 leftbuttondown
   rotate: false
-  xy: 371, 79
+  xy: 745, 937
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 leftbuttonover
   rotate: false
-  xy: 425, 79
+  xy: 1, 163
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 playernamefont
   rotate: false
-  xy: 1, 347
+  xy: 509, 991
   size: 505, 30
   orig: 505, 30
   offset: 0, 0
   index: -1
 rightbutton
   rotate: false
-  xy: 317, 60
+  xy: 799, 937
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 rightbuttondown
   rotate: false
-  xy: 371, 25
+  xy: 1, 109
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 rightbuttonover
   rotate: false
-  xy: 425, 25
+  xy: 853, 937
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 roundbutton
   rotate: false
-  xy: 467, 304
+  xy: 961, 948
   size: 43, 41
   split: 2, 3, 2, 1
   pad: 0, 0, 0, 0
@@ -133,7 +128,7 @@ roundbutton
   index: -1
 roundbuttondown
   rotate: false
-  xy: 467, 261
+  xy: 467, 849
   size: 43, 41
   split: 2, 3, 2, 2
   pad: 0, 0, 0, 0
@@ -142,7 +137,7 @@ roundbuttondown
   index: -1
 roundbuttonover
   rotate: false
-  xy: 467, 218
+  xy: 467, 806
   size: 43, 41
   split: 2, 3, 2, 2
   pad: 0, 0, 0, 0
@@ -151,7 +146,7 @@ roundbuttonover
   index: -1
 scrollpaneback
   rotate: false
-  xy: 1, 217
+  xy: 1, 762
   size: 130, 128
   split: 10, 9, 9, 9
   pad: 7, 6, 7, 7
@@ -160,35 +155,35 @@ scrollpaneback
   index: -1
 statusoff
   rotate: false
-  xy: 347, 169
+  xy: 132, 642
   size: 19, 16
   orig: 19, 16
   offset: 0, 0
   index: -1
 statuson
   rotate: false
-  xy: 467, 196
+  xy: 234, 740
   size: 18, 20
   orig: 18, 20
   offset: 0, 0
   index: -1
 swansea
   rotate: false
-  xy: 1, 443
+  xy: 1, 956
   size: 506, 65
   orig: 506, 65
   offset: 0, 0
   index: -1
 swanseabold
   rotate: false
-  xy: 1, 379
+  xy: 1, 892
   size: 506, 62
   orig: 506, 62
   offset: 0, 0
   index: -1
 textbutton
   rotate: false
-  xy: 263, 245
+  xy: 132, 660
   size: 100, 100
   split: 17, 18, 18, 19
   pad: 0, 0, 0, 0
@@ -197,7 +192,7 @@ textbutton
   index: -1
 textbuttondown
   rotate: false
-  xy: 1, 18
+  xy: 509, 923
   size: 126, 66
   split: 15, 15, 15, 10
   pad: 0, 0, 0, 0
@@ -206,7 +201,7 @@ textbuttondown
   index: -1
 textbuttonover
   rotate: false
-  xy: 365, 245
+  xy: 263, 790
   size: 100, 100
   split: 17, 18, 17, 18
   pad: 0, 0, 0, 0
@@ -215,14 +210,14 @@ textbuttonover
   index: -1
 textcursor
   rotate: false
-  xy: 129, 51
+  xy: 126, 596
   size: 1, 33
   orig: 1, 33
   offset: 0, 0
   index: -1
 textfieldback
   rotate: false
-  xy: 263, 168
+  xy: 1, 325
   size: 82, 75
   split: 14, 14, 14, 14
   orig: 82, 75
@@ -230,21 +225,21 @@ textfieldback
   index: -1
 upbutton
   rotate: false
-  xy: 132, 36
+  xy: 1, 55
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 upbuttondown
   rotate: false
-  xy: 186, 36
+  xy: 907, 937
   size: 52, 52
   orig: 52, 52
   offset: 0, 0
   index: -1
 upbuttonover
   rotate: false
-  xy: 240, 2
+  xy: 1, 1
   size: 52, 52
   orig: 52, 52
   offset: 0, 0

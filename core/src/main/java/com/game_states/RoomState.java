@@ -2,6 +2,8 @@ package com.game_states;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -11,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.game_states.stagecreation.RoomStage;
 import com.utils.ParsingUtils;
 
@@ -41,6 +44,18 @@ public class RoomState extends State {
 		table.setBackground(skin.getDrawable("back"));
 		initStage(table);
 		table.top().left();
+        table.setTouchable(Touchable.enabled);
+        stage.setKeyboardFocus(table);
+        table.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(stage.getKeyboardFocus() == table ) return;
+
+                if(event.getTarget() != stage.getKeyboardFocus()) {
+                    stage.setKeyboardFocus(table);
+                }
+            }
+        });
 		table.setDebug(false);
 
 //		table.row().expandX();
@@ -81,38 +96,25 @@ public class RoomState extends State {
 	}
 
 	private void refreshChat(int start, int end, String return_message) {
-		Table chatarea_t = stage.getRoot().findActor("chatarea");
-
 		for(int i = start; i < end;) {
 			int beginindex = ParsingUtils.getBeginIndex(i, return_message, '&');
 			int endindex = beginindex + ParsingUtils.parseInt(i, beginindex - 1, return_message);
 			String clientname = return_message.substring(beginindex, endindex);
 			i = endindex;
 
+            beginindex = ParsingUtils.getBeginIndex(i, return_message, '&');
+            endindex = beginindex + ParsingUtils.parseInt(i, beginindex - 1, return_message);
+            String message = return_message.substring(beginindex, endindex);
+            i = endindex;
+
 			boolean myMessage = clientname.equals(name);
 
-			if(!myMessage) {
-				Label clientlabel = new Label(clientname, skin);
-				clientlabel.setColor(Color.BLUE);
-				chatarea_t.row();
-				chatarea_t.add(clientlabel).expandX().left();
-			}
-
-			beginindex = ParsingUtils.getBeginIndex(i, return_message, '&');
-			endindex = beginindex + ParsingUtils.parseInt(i, beginindex - 1, return_message);
-			String message = return_message.substring(beginindex, endindex);
-			i = endindex;
-
-			Label messagelabel = new Label(message, skin);
-			chatarea_t.row();
-			Cell<Label> cell = chatarea_t.add(messagelabel).expandX();
 			if(myMessage) {
-				messagelabel.setColor(Color.GOLD);
-				cell.right();
+				addMyMessage(message);
 			}
-			else {
-				cell.left();
-			}
+            else{
+                addOthersMessage(clientname, message);
+            }
 
 			chatIndex++;
 		}
@@ -171,13 +173,7 @@ public class RoomState extends State {
 			}
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "rr")) {
-			isready = !isready;
-			if(!isready) {
-				Label allready_time = (Label)stage.getRoot().findActor("allreadytime");
-				allready_time.setVisible(false);
-			}
-			TextButton readybutton = stage.getRoot().findActor("readybutton");
-			readybutton.setText(isready ? "X Cancel" :"Ready");
+			toggleReady();
 		}
 		else if (ParsingUtils.requestCheck(start, return_message, "rb") && return_message.charAt(start + 2) == 'p') {
 			goBack();
@@ -193,16 +189,56 @@ public class RoomState extends State {
 
         chatfield_tf.setText("");
         appendRequest("rm" + content);
+
+
     }
 
     public void goBack(){
         appendRequest("rb");
     }
 
+    public void readyForBattle(){
+        appendRequest("rr");
+    }
+
+    public void toggleReady(){
+        isready = !isready;
+        if(!isready) {
+            Label allready_time = (Label)stage.getRoot().findActor("allreadytime");
+            allready_time.setVisible(false);
+        }
+        TextButton readybutton = stage.getRoot().findActor("readybutton");
+        readybutton.setText(isready ? "X Cancel" :"Ready");
+    }
+
     public void changeToLobbyState(){
         next_state_inf = new String[1];
         next_state_inf[0] = name;
         changeState(new LobbyState());
+    }
+
+    public void addMyMessage(String message){
+        Table chatarea_t = stage.getRoot().findActor("chatarea");
+
+        Label messagelabel = new Label(message, skin);
+        chatarea_t.row();
+        Cell<Label> cell = chatarea_t.add(messagelabel).expandX();
+        messagelabel.setColor(Color.GOLD);
+        cell.right();
+    }
+
+    public void addOthersMessage(String name, String message){
+        Table chatarea_t = stage.getRoot().findActor("chatarea");
+
+        Label clientlabel = new Label(name, skin);
+        clientlabel.setColor(Color.BLUE);
+        chatarea_t.row();
+        chatarea_t.add(clientlabel).expandX().left();
+
+        Label messagelabel = new Label(message, skin);
+        chatarea_t.row();
+        Cell<Label> cell = chatarea_t.add(messagelabel).expandX();
+        cell.left();
     }
 
 }
