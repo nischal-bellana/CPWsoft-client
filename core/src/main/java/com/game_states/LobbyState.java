@@ -1,6 +1,8 @@
 package com.game_states;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -32,16 +34,42 @@ public class LobbyState extends State {
 		initStage(table);
 		table.top().left();
         table.setTouchable(Touchable.enabled);
+        stage.setKeyboardFocus(table);
         table.addListener(new ClickListener() {
 
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO Auto-generated method stub
-                if(stage.getKeyboardFocus() == null) return;
+                if(stage.getKeyboardFocus() == table) return;
 
                 if(event.getTarget()!= stage.getKeyboardFocus()) {
-                    stage.unfocus(stage.getKeyboardFocus());
+                    stage.setKeyboardFocus(table);
                 }
+            }
+        });
+        table.addListener(new InputListener(){
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if(bgrp.getButtons().size > 0 ){
+                    if(keycode == Input.Keys.DOWN){
+                        bgrp.getButtons().get(Math.min(bgrp.getCheckedIndex() + 1, bgrp.getButtons().size - 1)).setChecked(true);
+                    }
+                    else if(keycode == Input.Keys.UP){
+                        bgrp.getButtons().get(Math.max(bgrp.getCheckedIndex() - 1, 0)).setChecked(true);
+                    }
+
+                }
+                return true;
+            }
+
+            @Override
+            public boolean keyTyped(InputEvent event, char character) {
+                if(bgrp.getChecked() == null) return true;
+
+                if(character == '\n'){
+                    joinRoom();
+                }
+                return true;
             }
         });
 
