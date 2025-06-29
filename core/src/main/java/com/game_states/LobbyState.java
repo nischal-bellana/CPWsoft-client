@@ -1,18 +1,11 @@
 package com.game_states;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.game_states.stagecreation.LobbyStage;
 import com.utils.ParsingUtils;
@@ -116,20 +109,21 @@ public class LobbyState extends State {
 			refreshRooms(start + 3, end, return_message);
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "lj") && return_message.charAt(start + 2) == 'p') {
-			String roomname = return_message.substring(start + 3, end);
-			next_state_inf = new String[2];
-			next_state_inf[0] = name;
-			next_state_inf[1] = roomname;
-			changeState(new RoomState());
+			String room_name = return_message.substring(start + 3, end);
+            changeToRoomState(room_name);
 		}
 		else if(ParsingUtils.requestCheck(start, return_message, "lc") && return_message.charAt(start + 2) == 'p') {
-			String roomname = return_message.substring(start + 3, end);
-			next_state_inf = new String[2];
-			next_state_inf[0] = name;
-			next_state_inf[1] = roomname;
-			changeState(new RoomState());
+			String room_name = return_message.substring(start + 3, end);
+			changeToRoomState(room_name);
 		}
 	}
+
+    public void changeToRoomState(String room_name){
+        next_state_inf = new String[2];
+        next_state_inf[0] = name;
+        next_state_inf[1] = room_name;
+        changeState(new RoomState());
+    }
 
 	@Override
 	public void poll() {

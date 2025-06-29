@@ -1,13 +1,10 @@
 package com.game_states.stagecreation;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.game_states.LobbyState;
-
-import javax.swing.*;
 
 public class LobbyStage {
     public static void createTopBar(Table table, LobbyState state){

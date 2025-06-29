@@ -16,7 +16,7 @@ public class RoomStage {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // TODO Auto-generated method stub
-                state.appendRequest("rb");
+                state.goBack();
             }
 
         });

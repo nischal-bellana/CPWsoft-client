@@ -21,10 +21,7 @@ public class LobbyStateMock extends LobbyState {
     public void joinRoom() {
         if(bgrp.getChecked() == null) return;
         System.out.println("Joining...");
-        next_state_inf = new String[2];
-        next_state_inf[0] = name;
-        next_state_inf[1] = "fusdjn";
-        changeState(new RoomStateMock());
+        changeToRoomState("");
     }
 
     @Override
@@ -35,6 +32,14 @@ public class LobbyStateMock extends LobbyState {
     @Override
     public void createRoom() {
         System.out.println("Creating...");
+    }
+
+    @Override
+    public void changeToRoomState(String room_name) {
+        next_state_inf = new String[2];
+        next_state_inf[0] = name;
+        next_state_inf[1] = "fusdjn";
+        changeState(new RoomStateMock());
     }
 
     @Override

@@ -196,6 +196,10 @@ public class RoomState extends State {
     }
 
     public void goBack(){
+        appendRequest("rb");
+    }
+
+    public void changeToLobbyState(){
         next_state_inf = new String[1];
         next_state_inf[0] = name;
         changeState(new LobbyState());
