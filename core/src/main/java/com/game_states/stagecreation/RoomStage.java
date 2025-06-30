@@ -1,11 +1,14 @@
 package com.game_states.stagecreation;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.game_states.RoomState;
 
 public class RoomStage {
@@ -64,24 +67,28 @@ public class RoomStage {
         chatfield_tf.setName("chatfield_tf");
         chatfield_tf.addListener(new InputListener(){
             @Override
-            public boolean keyTyped(InputEvent event, char character) {
-
-                if(state.stage.getKeyboardFocus() == chatfield_tf && character == '\n'){
-                    state.sendMessage();
+            public boolean keyDown(InputEvent event, int keycode) {
+                if(state.stage.getKeyboardFocus() == chatfield_tf
+                    && (keycode == Input.Keys.ENTER && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))
+                    && state.sendMessage()){
+                    event.stop();
+                    return true;
                 }
-                return true;
+                return false;
             }
+
         });
         table.addListener(new InputListener(){
             @Override
-            public boolean keyTyped(InputEvent event, char character) {
-                if(character == '\n'){
+            public boolean keyDown(InputEvent event, int keycode) {
+                if(keycode == Input.Keys.ENTER && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)){
                     state.stage.setKeyboardFocus(event.getTarget() == chatfield_tf ? table : chatfield_tf);
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
-        table.add(chatfield_tf).fillX().padLeft(20).height(30);
+        table.add(chatfield_tf).fillX().padLeft(20).height(20);
 
         TextButton send_tb = new TextButton("Send", state.skin);
         send_tb.addListener(new ChangeListener() {

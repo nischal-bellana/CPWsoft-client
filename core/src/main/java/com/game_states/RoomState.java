@@ -180,17 +180,16 @@ public class RoomState extends State {
 		}
 	}
 
-    public void sendMessage(){
+    public boolean sendMessage(){
         TextField chatfield_tf = stage.getRoot().findActor("chatfield_tf");
 
         String content = chatfield_tf.getText();
 
-        if(content.equals("") || content.contains("{") || content.contains("}")) return;
+        if(content.equals("")) return false;
 
         chatfield_tf.setText("");
         appendRequest("rm" + content);
-
-
+        return true;
     }
 
     public void goBack(){
@@ -222,9 +221,8 @@ public class RoomState extends State {
 
         Label messagelabel = new Label(message, skin);
         chatarea_t.row();
-        Cell<Label> cell = chatarea_t.add(messagelabel).expandX();
+        chatarea_t.add(messagelabel).expandX().right().padRight(10);
         messagelabel.setColor(Color.GOLD);
-        cell.right();
     }
 
     public void addOthersMessage(String name, String message){
@@ -237,8 +235,7 @@ public class RoomState extends State {
 
         Label messagelabel = new Label(message, skin);
         chatarea_t.row();
-        Cell<Label> cell = chatarea_t.add(messagelabel).expandX();
-        cell.left();
+        chatarea_t.add(messagelabel).expandX().left().padLeft(10);
     }
 
 }

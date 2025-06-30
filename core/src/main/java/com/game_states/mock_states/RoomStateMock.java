@@ -24,12 +24,13 @@ public class RoomStateMock extends RoomState {
     }
 
     @Override
-    public void sendMessage() {
+    public boolean sendMessage() {
         TextField chatfield_tf = stage.getRoot().findActor("chatfield_tf");
-        if(chatfield_tf.getText().equals("")) return;
+        if(chatfield_tf.getText().equals("")) return false;
+
         addMyMessage(chatfield_tf.getText());
         chatfield_tf.setText("");
-        stage.unfocus(chatfield_tf);
+        return true;
     }
 
     @Override

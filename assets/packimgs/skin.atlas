@@ -212,6 +212,7 @@ textcursor
   rotate: false
   xy: 126, 596
   size: 1, 33
+  split: 0, 0, 0, 0
   orig: 1, 33
   offset: 0, 0
   index: -1

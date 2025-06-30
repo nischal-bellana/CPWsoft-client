@@ -45,6 +45,17 @@
 		"a": 1
 	}
 },
+"com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable": {
+	"textcursor": {
+		"patch": "textcursor",
+		"minWidth": 1,
+		"minHeight": 20,
+		"leftWidth": 0,
+		"rightWidth": 0,
+		"topHeight": 0,
+		"bottomHeight": 0
+	}
+},
 "com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle": {
 	"default": {
 		"up": "roundbutton",
