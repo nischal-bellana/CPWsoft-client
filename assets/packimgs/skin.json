@@ -6,8 +6,8 @@
 		"markupEnabled": false,
 		"flip": false
 	},
-	"swansea": {
-		"file": "swansea.fnt",
+	"Swansea": {
+		"file": "Swansea-q3pd.fnt",
 		"scaledSize": -1,
 		"markupEnabled": false,
 		"flip": false
@@ -42,6 +42,12 @@
 		"r": 0.972549,
 		"g": 0.9764706,
 		"b": 0.53333336,
+		"a": 1
+	},
+	"white": {
+		"r": 1,
+		"g": 1,
+		"b": 1,
 		"a": 1
 	}
 },
@@ -96,7 +102,7 @@
 },
 "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
 	"default": {
-		"font": "swanseabold",
+		"font": "Swansea",
 		"fontColor": "lightblue"
 	},
 	"head": {
@@ -106,6 +112,16 @@
 	},
 	"playernamestyle": {
 		"font": "playernamefont"
+	},
+	"mymsg": {
+		"font": "Swansea",
+		"fontColor": "white",
+		"background": "mymsg"
+	},
+	"othermsg": {
+		"font": "Swansea",
+		"fontColor": "white",
+		"background": "othermsg"
 	}
 },
 "com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle": {
@@ -120,13 +136,13 @@
 },
 "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
 	"default": {
-		"font": "swansea",
+		"font": "Swansea",
 		"fontColor": "black",
 		"up": "textbutton",
 		"over": "textbuttonover"
 	},
 	"checkenable": {
-		"font": "swansea",
+		"font": "Swansea",
 		"fontColor": "black",
 		"up": "textbutton",
 		"down": "textbuttondown",
@@ -136,7 +152,7 @@
 },
 "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
 	"default": {
-		"font": "swansea",
+		"font": "Swansea",
 		"fontColor": "lightblue",
 		"focusedFontColor": "lightyellow",
 		"disabledFontColor": "gray",

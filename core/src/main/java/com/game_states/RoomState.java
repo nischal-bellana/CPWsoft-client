@@ -219,17 +219,15 @@ public class RoomState extends State {
     public void addMyMessage(String message){
         Table chatarea_t = stage.getRoot().findActor("chatarea");
 
-        Label messagelabel = new Label(message, skin);
+        Label messagelabel = new Label(message, skin, "mymsg");
         chatarea_t.row();
-        chatarea_t.add(messagelabel).expandX().right().padRight(10);
-        messagelabel.setColor(Color.GOLD);
+        chatarea_t.add(messagelabel).expandX().right().padRight(10).height(20*(message.lines().count()) + 25);
     }
 
     public void addOthersMessage(String name, String message){
         Table chatarea_t = stage.getRoot().findActor("chatarea");
 
-        Label clientlabel = new Label(name, skin);
-        clientlabel.setColor(Color.BLUE);
+        Label clientlabel = new Label(name, skin, "othermsg");
         chatarea_t.row();
         chatarea_t.add(clientlabel).expandX().left();
 

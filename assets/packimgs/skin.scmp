@@ -562,6 +562,46 @@ atlasData: {
 			type: NINE_PATCH
 			hidden: false
 		}
+		{
+			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/mymsg.9.png
+			bgColor: {
+				r: 1
+				g: 1
+				b: 1
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: mymsg
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			tvgData: null
+			type: NINE_PATCH
+			hidden: false
+		}
+		{
+			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/othermsg.9.png
+			bgColor: {
+				r: 1
+				g: 1
+				b: 1
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: othermsg
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			tvgData: null
+			type: NINE_PATCH
+			hidden: false
+		}
 	]
 	fontDrawables: [
 		{
@@ -585,26 +625,6 @@ atlasData: {
 			hidden: false
 		}
 		{
-			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/swansea.png
-			bgColor: {
-				r: 1
-				g: 1
-				b: 1
-				a: 1
-			}
-			tint: null
-			tintName: null
-			name: swansea
-			tiled: false
-			minWidth: -1
-			minHeight: -1
-			customized: false
-			tenPatchData: null
-			tvgData: null
-			type: FONT
-			hidden: false
-		}
-		{
 			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/swanseabold.png
 			bgColor: {
 				r: 1
@@ -615,6 +635,26 @@ atlasData: {
 			tint: null
 			tintName: null
 			name: swanseabold
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			tvgData: null
+			type: FONT
+			hidden: false
+		}
+		{
+			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/fonts/Swansea-q3pd.png
+			bgColor: {
+				r: 1
+				g: 1
+				b: 1
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: Swansea-q3pd
 			tiled: false
 			minWidth: -1
 			minHeight: -1
@@ -668,6 +708,16 @@ jsonData: {
 			}
 			name: lightyellow
 		}
+		{
+			class: com.ray3k.skincomposer.data.ColorData
+			color: {
+				r: 1
+				g: 1
+				b: 1
+				a: 1
+			}
+			name: white
+		}
 	]
 	fonts: [
 		{
@@ -680,11 +730,11 @@ jsonData: {
 		}
 		{
 			class: com.ray3k.skincomposer.data.FontData
-			name: swansea
+			name: Swansea
 			flip: false
 			markupEnabled: false
 			scaling: -1
-			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/packimgs/skin_data/swansea.fnt
+			file: C:/Users/nisch/Desktop/java files/CPWsoft-client/assets/fonts/Swansea-q3pd.fnt
 		}
 		{
 			class: com.ray3k.skincomposer.data.FontData
@@ -1259,7 +1309,7 @@ jsonData: {
 						type: com.badlogic.gdx.graphics.g2d.BitmapFont
 						name: font
 						optional: false
-						value: swansea
+						value: Swansea
 					}
 					fontColor: {
 						type: com.badlogic.gdx.graphics.Color
@@ -1418,7 +1468,7 @@ jsonData: {
 						type: com.badlogic.gdx.graphics.g2d.BitmapFont
 						name: font
 						optional: false
-						value: swansea
+						value: Swansea
 					}
 					fontColor: {
 						type: com.badlogic.gdx.graphics.Color
@@ -2183,7 +2233,7 @@ jsonData: {
 						type: com.badlogic.gdx.graphics.g2d.BitmapFont
 						name: font
 						optional: false
-						value: swansea
+						value: Swansea
 					}
 					fontColor: {
 						type: com.badlogic.gdx.graphics.Color
@@ -2955,7 +3005,7 @@ jsonData: {
 						type: com.badlogic.gdx.graphics.g2d.BitmapFont
 						name: font
 						optional: false
-						value: swanseabold
+						value: Swansea
 					}
 					fontColor: {
 						type: com.badlogic.gdx.graphics.Color
@@ -3022,6 +3072,60 @@ jsonData: {
 						name: background
 						optional: true
 						value: null
+					}
+				}
+				deletable: true
+				parent: null
+			}
+			{
+				class: com.ray3k.skincomposer.data.StyleData
+				name: mymsg
+				clazz: com.badlogic.gdx.scenes.scene2d.ui.Label
+				properties: {
+					font: {
+						type: com.badlogic.gdx.graphics.g2d.BitmapFont
+						name: font
+						optional: false
+						value: Swansea
+					}
+					fontColor: {
+						type: com.badlogic.gdx.graphics.Color
+						name: fontColor
+						optional: true
+						value: white
+					}
+					background: {
+						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable
+						name: background
+						optional: true
+						value: mymsg
+					}
+				}
+				deletable: true
+				parent: null
+			}
+			{
+				class: com.ray3k.skincomposer.data.StyleData
+				name: othermsg
+				clazz: com.badlogic.gdx.scenes.scene2d.ui.Label
+				properties: {
+					font: {
+						type: com.badlogic.gdx.graphics.g2d.BitmapFont
+						name: font
+						optional: false
+						value: Swansea
+					}
+					fontColor: {
+						type: com.badlogic.gdx.graphics.Color
+						name: fontColor
+						optional: true
+						value: white
+					}
+					background: {
+						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable
+						name: background
+						optional: true
+						value: othermsg
 					}
 				}
 				deletable: true
