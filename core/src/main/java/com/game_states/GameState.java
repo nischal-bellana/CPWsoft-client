@@ -75,8 +75,6 @@ public class GameState extends State {
 		udpbridgereceiver.closeSocket();
 	}
 
-
-
 	@Override
 	public void disposeHalf() {
 		// TODO Auto-generated method stub
@@ -87,7 +85,6 @@ public class GameState extends State {
 		udpbridgesender.closeSocket();
 		udpbridgereceiver.closeSocket();
 	}
-
 
 	@Override
 	public void resize(int width, int height) {
@@ -190,15 +187,6 @@ public class GameState extends State {
 			inputs.append('c');
 		}
 
-//		if(player.weaponReady() && !player.bombAlive()) {
-//			if(Gdx.input.isTouched()) {
-//				player.incrementPowerLevel();
-//			}
-//			else if(player.powerLevelNonZero()) {
-//				player.LaunchBomb();
-//				player.resetPowerLevel();
-//			}
-//		}
 		if(player.getPowerLevel() != -1) {
 			if(inputs == null) inputs = new StringBuilder();
 

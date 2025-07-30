@@ -77,62 +77,20 @@ public class GameStateOffline extends State {
 	private final float turntime = 20;
 
 	@Override
-	public void create() {
-		// TODO Auto-generated method stub
-		Box2D.init();
-
-		world = new World(new Vector2(0,-9.8f), true);
-		world.setContactListener(new myContactListener());
-		atlas = new TextureAtlas("packimgs//atlaspack.atlas");
-		random = new Random();
-
-		initStage();
-		createGameObjects();
-		getRegions();
-	}
-
-
-
-	@Override
 	public void create(State prevst) {
 		// TODO Auto-generated method stub
 		super.create(prevst);
-	}
 
+        Box2D.init();
 
+        world = new World(new Vector2(0,-9.8f), true);
+        world.setContactListener(new myContactListener());
+        atlas = new TextureAtlas("packimgs//atlaspack.atlas");
+        random = new Random();
 
-	@Override
-	public void render() {
-		// TODO Auto-generated method stub
-		float delta = Gdx.graphics.getDeltaTime();
-
-		preRender();
-
-	    batchRender();
-
-	    stageRender();
-
-	    doPhysicsStep(delta);
-
-	    gameUpdate(delta);
-	    if(shouldexit) {
-	    	changeState(new FirstState());
-	    	return;
-	    }
-
-	    inputUpdate();
-
-	    updatePlayers(delta);
-
-	    updateTurnMark();
-
-	    updateBombs(delta);
-
-	    updateClips(delta);
-
-	    groundworld.createFixtures();
-	    groundworld.destroyFixtures();
-	    ground.updateDepthBuffer();
+        createStage();
+        createGameObjects();
+        getRegions();
 	}
 
 	@Override
@@ -145,14 +103,49 @@ public class GameStateOffline extends State {
 		ground.disposeShapeRenderer();
 	}
 
-	@Override
+    @Override
+    public void disposeHalf() {
+        super.disposeHalf();
+
+        world.dispose();
+        atlas.dispose();
+        ground.disposeShapeRenderer();
+    }
+
+    @Override
+    public void postRenderUpdate() {
+        doPhysicsStep(frame_delta_time);
+
+        gameUpdate(frame_delta_time);
+        if(shouldexit) {
+            changeState(new FirstState());
+            return;
+        }
+
+        inputUpdate();
+
+        updatePlayers();
+
+        updateTurnMark();
+
+        updateBombs(frame_delta_time);
+
+        updateClips(frame_delta_time);
+
+        groundworld.createFixtures();
+        groundworld.destroyFixtures();
+        ground.updateDepthBuffer();
+    }
+
+    @Override
 	public void resize(int width, int height) {
 		// TODO Auto-generated method stub
 		mainvp.update(width, height);
 		ground.setUpdateDepthBuffer(true);
 	}
 
-	private void initStage() {
+    @Override
+	public void createStage() {
 		stage = new Stage(mainvp);
 		Gdx.input.setInputProcessor(stage);
 		SceneComposerStageBuilder builder = new SceneComposerStageBuilder();
@@ -246,45 +239,49 @@ public class GameStateOffline extends State {
 		return player;
 	}
 
-	private void updatePlayers(float delta) {
+	private void updatePlayers() {
 		for(Player aplayer : players) {
-			PlayerWorld playerworld = playersmap.get(aplayer);
-			Body body = playerworld.getBody();
-			aplayer.centerSpriteToHere(body.getPosition().x, body.getPosition().y );
-
-			if(aplayer.getHealth() <= 0) {
-				if(aplayer.getRespawnTime() > 3) {
-					aplayer.respawn(skin, stage);
-					body.setTransform((5 + 3 * random.nextInt(5)), 15, 0);
-					body.setLinearVelocity(0, -0.01f);
-					aplayer.resetRespawnTime();
-				}
-				else {
-					aplayer.passrespawntime(delta);
-				}
-				continue;
-			}
-
-			if(body.getPosition().y < 3) {
-				body.applyForceToCenter(0, 1f, false);
-				aplayer.addDamage(10);
-			}
-
-			int damage = aplayer.pollDamage();
-
-			if(damage != -1) {
-				aplayer.damageBy(damage, skin, stage);
-			}
-
-			int scorepoint = aplayer.pollScorePoint();
-
-			if(scorepoint != -1) {
-				aplayer.scoreBy(scorepoint, skin, stage);
-			}
-
-			if(aplayer.getPowerLevel() != -1) aplayer.updatePowerIndicator();
+			updatePlayer(aplayer);
 		}
 	}
+
+    public void updatePlayer(Player aplayer){
+        PlayerWorld playerworld = playersmap.get(aplayer);
+        Body body = playerworld.getBody();
+        aplayer.centerSpriteToHere(body.getPosition().x, body.getPosition().y );
+
+        if(aplayer.getHealth() <= 0) {
+            if(aplayer.getRespawnTime() > 3) {
+                aplayer.respawn(skin, stage);
+                body.setTransform((5 + 3 * random.nextInt(5)), 15, 0);
+                body.setLinearVelocity(0, -0.01f);
+                aplayer.resetRespawnTime();
+            }
+            else {
+                aplayer.passrespawntime(frame_delta_time);
+            }
+            return;
+        }
+
+        if(body.getPosition().y < 3) {
+            body.applyForceToCenter(0, 1f, false);
+            aplayer.addDamage(10);
+        }
+
+        int damage = aplayer.pollDamage();
+
+        if(damage != -1) {
+            aplayer.damageBy(damage, skin, stage);
+        }
+
+        int scorepoint = aplayer.pollScorePoint();
+
+        if(scorepoint != -1) {
+            aplayer.scoreBy(scorepoint, skin, stage);
+        }
+
+        if(aplayer.getPowerLevel() != -1) aplayer.updatePowerIndicator();
+    }
 
 	private void getRegions() {
 		backregion = atlas.findRegion("back");
