@@ -4,18 +4,17 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.game_states.stagecreation.RoomStage;
 import com.utils.ParsingUtils;
+
+import java.awt.*;
 
 public class RoomState extends State {
 	public String name;
@@ -181,15 +180,48 @@ public class RoomState extends State {
 	}
 
     public boolean sendMessage(){
-        TextField chatfield_tf = stage.getRoot().findActor("chatfield_tf");
+        String message_str = getMessageFromChatInput();
 
-        String content = chatfield_tf.getText();
+        if(message_str.equals("")) return false;
 
-        if(content.equals("")) return false;
+        appendRequest("rm" + message_str);
+        resetChatInput();
 
-        chatfield_tf.setText("");
-        appendRequest("rm" + content);
         return true;
+    }
+
+    public String getMessageFromChatInput(){
+        StringBuilder message = new StringBuilder();
+
+        VerticalGroup chatinput_vg = stage.getRoot().findActor("chatinput_vg");
+
+        for(Actor a: chatinput_vg.getChildren()){
+            Container<TextField> chatinput_tf_c = (Container<TextField>) a;
+            String line = chatinput_tf_c.getActor().getText();
+
+            if(line.length() > 26){
+                int i = 0;
+                while(line.length() - i > 26){
+                    ParsingUtils.appendData((i==0 ? "" : "-") + line.substring(i, i + 26) + "-", message);
+                    i += 26;
+                }
+                ParsingUtils.appendData(line.substring(i), message);
+                continue;
+            }
+
+            ParsingUtils.appendData(line, message);
+        }
+
+        return message.toString().strip();
+    }
+
+    public void resetChatInput(){
+        VerticalGroup chatinput_vg = stage.getRoot().findActor("chatinput_vg");
+
+        while(chatinput_vg.getChildren().size > 1){
+            chatinput_vg.removeActorAt(1, false);
+        }
+        ((Container<TextField>) chatinput_vg.getChild(0)).getActor().setText("");
     }
 
     public void goBack(){
@@ -219,21 +251,25 @@ public class RoomState extends State {
     public void addMyMessage(String message){
         Table chatarea_t = stage.getRoot().findActor("chatarea");
 
-        Label messagelabel = new Label(message, skin, "mymsg");
+        String final_msg = ParsingUtils.toMultiLine(message);
+
+        Label messagelabel = new Label(final_msg, skin, "mymsg");
         chatarea_t.row();
-        chatarea_t.add(messagelabel).expandX().right().padRight(10).height(20*(message.lines().count()) + 25);
+        chatarea_t.add(messagelabel).expandX().right().padRight(10).height(20*(final_msg.lines().count()) + 25);
     }
 
     public void addOthersMessage(String name, String message){
         Table chatarea_t = stage.getRoot().findActor("chatarea");
 
-        Label clientlabel = new Label(name, skin, "othermsg");
+        String final_msg = ParsingUtils.toMultiLine(message);
+
+        Label messagelabel = new Label(final_msg, skin, "othermsg");
+        chatarea_t.row();
+        chatarea_t.add(messagelabel).expandX().left().padLeft(10).height(20*(final_msg.lines().count()) + 25);
+
+        Label clientlabel = new Label(name, skin, "playernamestyle");
         chatarea_t.row();
         chatarea_t.add(clientlabel).expandX().left();
-
-        Label messagelabel = new Label(message, skin);
-        chatarea_t.row();
-        chatarea_t.add(messagelabel).expandX().left().padLeft(10);
     }
 
 }
