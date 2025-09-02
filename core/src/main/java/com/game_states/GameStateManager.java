@@ -1,12 +1,13 @@
 package com.game_states;
 
+
 import com.game_states.mock_states.FirstStateMock;
 
 public class GameStateManager {
 	public State st;
 	public State next_st;
 	public GameStateManager() {
-		st = new FirstState();
+		st = new FirstStateMock();
 		st.gsm = this;
 		st.create();
 	}

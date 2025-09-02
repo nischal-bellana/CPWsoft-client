@@ -2,7 +2,6 @@ package com.game_states.mock_states;
 
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.game_states.FirstState;
-import com.game_states.LobbyState;
 
 public class FirstStateMock extends FirstState{
     @Override

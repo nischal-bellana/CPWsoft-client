@@ -11,4 +11,5 @@ dependencies {
   }
   implementation 'com.github.raeleus.stripe:stripe:2.0.0'
   implementation group: 'org.openpnp', name: 'opencv', version: '4.9.0-0'
+  api 'io.github.nischal-bellana:CPWsoft-utils:1.0.1'
 }

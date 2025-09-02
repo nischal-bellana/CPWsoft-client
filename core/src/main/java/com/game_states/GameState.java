@@ -21,7 +21,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import com.ray3k.stripe.scenecomposer.SceneComposerStageBuilder;
-import com.utils.ParsingUtils;
+import com.crowbar.utils.ParsingUtils;
 
 public class GameState extends State {
 

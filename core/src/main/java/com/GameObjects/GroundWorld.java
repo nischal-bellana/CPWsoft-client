@@ -7,8 +7,8 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Queue;
-import com.utils.PointNode;
-import com.utils.WorldUtils;
+import com.crowbar.utils.PointNode;
+import com.crowbar.utils.WorldUtils;
 
 public class GroundWorld {
 	private Body body;
@@ -17,7 +17,7 @@ public class GroundWorld {
 	private Queue<PointNode> tobecreated;
 	private Queue<float[]> broadcastcreate;
 	private Queue<Integer> broadcastdestroy;
-	
+
 	public GroundWorld(Ground ground, Body body) {
 		this.ground = ground;
 		this.body = body;
@@ -26,25 +26,25 @@ public class GroundWorld {
 		broadcastcreate = new Queue<float[]>();
 		broadcastdestroy = new Queue<Integer>();
 	}
-	
+
 	public Vector2 getPosition() {
 		return body.getPosition();
 	}
-	
+
 	public Body getBody() {
 		return body;
 	}
-	
+
 	public void queueDestroy(Fixture fixture) {
 		tobedestroyed.addLast(fixture);
 	}
-	
+
 	public void queueCreate(Array<PointNode> finalfixtures) {
 		for(PointNode f : finalfixtures) {
 			tobecreated.addLast(f);
 		}
 	}
-	
+
 	public void createFixtures() {
 		if(tobecreated.isEmpty()) return;
 
@@ -54,7 +54,7 @@ public class GroundWorld {
 			PointNode poly = tobecreated.removeFirst();
 			uniqueVertices(poly);
 			if(poly.vert_count < 3) continue;
-			
+
 			float time = 0;
 			while(getBody().getWorld().isLocked()) {
 				System.out.print("\r" + "is Locked for " + time + " secs");
@@ -66,7 +66,7 @@ public class GroundWorld {
 				}
 				time += 0.01;
 			}
-			
+
 			FixtureDef fdef = WorldUtils.createFixDef(1, 1f, 0.3f);
 			PolygonShape shape = new PolygonShape();
 			float[] arr = toArray(poly);
@@ -77,14 +77,14 @@ public class GroundWorld {
 			getBody().createFixture(fdef).setUserData(this);
 			shape.dispose();
 		}
-		
+
 	}
-	
+
 	public void destroyFixtures() {
 		if(tobedestroyed.isEmpty()) return;
-		
+
 		ground.setUpdateDepthBuffer(true);
-		
+
 		while(!tobedestroyed.isEmpty()) {
 			Fixture f = tobedestroyed.removeFirst();
 			int index = getBody().getFixtureList().indexOf(f, true);
@@ -101,11 +101,11 @@ public class GroundWorld {
 				}
 				time += 0.01;
 			}
-			
+
 			getBody().destroyFixture(f);
 		}
 	}
-	
+
 	private float[] toArray(PointNode poly) {
 		float[] arr = new float[2*poly.vert_count];
 		PointNode cur = poly;
@@ -113,10 +113,10 @@ public class GroundWorld {
 			arr[i] = i%2==0? (float)cur.x : (float)cur.y;
 			if(i%2 == 1) cur = cur.next;
 		}
-		
+
 		return arr;
 	}
-	
+
 	private void uniqueVertices(PointNode head) {
 		int vert_count = 1;
 		PointNode tail = head;
@@ -145,34 +145,34 @@ public class GroundWorld {
 			cur.prev.next = null;
 			cur.prev = null;
 		}
-		
+
 		tail.next = head;
 		head.prev = tail;
 		head.vert_count = vert_count;
-		
+
 	}
-	
+
 	private boolean coincide(PointNode p1, PointNode p2) {
 		PointNode diff = p2.sub(p1);
 		Vector2 vec = new Vector2((float) diff.x, (float) diff.y);
-		
+
 		return vec.len2() < (0.00000625);
 	}
-	
+
 	public boolean shouldBroadcastCreate() {
 		return !broadcastcreate.isEmpty();
 	}
-	
+
 	public boolean shouldBroadcastDestroy() {
 		return !broadcastdestroy.isEmpty();
 	}
-	
+
 	public void addToBroadcastCreate(float[] arr) {
 		broadcastcreate.addLast(arr);
 	}
-	
+
 	public String getBroadcastCreate(StringBuilder str) {
-		
+
 		while(!broadcastcreate.isEmpty()) {
 			float[] fixture = broadcastcreate.removeFirst();
 			for(int i = 0; i < fixture.length; i++) {
@@ -183,23 +183,23 @@ public class GroundWorld {
 			str.append('c');
 		}
 		str.deleteCharAt(str.length()-1);
-		
+
 		return str.toString();
-		
+
 	}
-	
+
 	public String getBroadcastDestroy(StringBuilder str) {
-		
+
 		while(!broadcastdestroy.isEmpty()) {
 			int index = broadcastdestroy.removeFirst();
 			str.append(index);
 			str.append('d');
 		}
 		str.deleteCharAt(str.length()-1);
-		
+
 		return str.toString();
-		
+
 	}
-	
-	
+
+
 }

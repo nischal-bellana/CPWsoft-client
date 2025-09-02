@@ -37,8 +37,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Queue;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.ray3k.stripe.scenecomposer.SceneComposerStageBuilder;
-import com.utils.WorldUtils;
-import com.utils.polygonGen;
+import com.crowbar.utils.WorldUtils;
+import com.crowbar.utils.polygonGen;
 
 public class GameStateOffline extends State {
 

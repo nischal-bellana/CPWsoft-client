@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.game_states.stagecreation.LobbyStage;
-import com.utils.ParsingUtils;
+import com.crowbar.utils.ParsingUtils;
 
 public class LobbyState extends State {
 	public String name;
